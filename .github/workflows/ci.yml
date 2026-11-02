@@ -71,7 +71,10 @@ jobs:
           openssl rand -base64 756 > .forge/ci/mongodb-keyfile
           chmod 400 .forge/ci/mongodb-keyfile
           sudo chown 999:999 .forge/ci/mongodb-keyfile
-          docker run -d --name forge-mongodb -p 127.0.0.1:27017:27017 --mount type=bind,source="$PWD/.forge/ci/mongodb-keyfile",target=/run/mongodb-keyfile,readonly -e MONGO_INITDB_ROOT_USERNAME=forge -e MONGO_INITDB_ROOT_PASSWORD=local-integration-test mongo:8.0 --replSet rs0 --bind_ip_all --keyFile /run/mongodb-keyfile
+          # Disposable CI only: use per-thread allocator caches on hosted kernels
+          # affected by MongoDB SERVER-121912. Authentication stays enabled.
+          # https://www.mongodb.com/docs/manual/administration/tcmalloc-performance/
+          docker run -d --name forge-mongodb -p 127.0.0.1:27017:27017 --mount type=bind,source="$PWD/.forge/ci/mongodb-keyfile",target=/run/mongodb-keyfile,readonly -e GLIBC_TUNABLES=glibc.pthread.rseq=1 -e MONGO_INITDB_ROOT_USERNAME=forge -e MONGO_INITDB_ROOT_PASSWORD=local-integration-test mongo:8.0 --replSet rs0 --bind_ip_all --keyFile /run/mongodb-keyfile
           if ! node scripts/prepare_test_mongodb.mjs; then
             docker inspect forge-mongodb --format '{{json .State}}'
             docker logs --tail 60 forge-mongodb
