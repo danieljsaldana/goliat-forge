@@ -1,0 +1,9 @@
+function handler(event) {
+  var request = event.request;
+  var portals = ${portals};
+  var path = request.uri;
+  if (path === '/' || path === '/callback/' || path === '/callback' || portals.some(function (key) { return path === '/' + key || path === '/' + key + '/'; })) {
+    request.uri = '/index.html';
+  }
+  return request;
+}

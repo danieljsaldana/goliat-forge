@@ -1,0 +1,680 @@
+[
+  {
+    "module": "database",
+    "type": "aws_rds_cluster_parameter_group",
+    "name": "aurora",
+    "source": "modules/database/aurora.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_rds_cluster",
+    "name": "aurora",
+    "source": "modules/database/aurora.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_rds_cluster_instance",
+    "name": "writer",
+    "source": "modules/database/aurora.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_rds_cluster_instance",
+    "name": "reader",
+    "source": "modules/database/aurora.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_docdb_subnet_group",
+    "name": "this",
+    "source": "modules/database/documentdb.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_docdb_cluster_parameter_group",
+    "name": "this",
+    "source": "modules/database/documentdb.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_docdb_cluster",
+    "name": "this",
+    "source": "modules/database/documentdb.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_docdb_cluster_instance",
+    "name": "writer",
+    "source": "modules/database/documentdb.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_docdb_cluster_instance",
+    "name": "reader",
+    "source": "modules/database/documentdb.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_kms_key",
+    "name": "data",
+    "source": "modules/database/main.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_db_subnet_group",
+    "name": "this",
+    "source": "modules/database/main.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_db_parameter_group",
+    "name": "this",
+    "source": "modules/database/postgres.tf"
+  },
+  {
+    "module": "database",
+    "type": "aws_db_instance",
+    "name": "this",
+    "source": "modules/database/postgres.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_public_access_block",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_versioning",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_server_side_encryption_configuration",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_lifecycle_configuration",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket",
+    "name": "logs",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_public_access_block",
+    "name": "logs",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_server_side_encryption_configuration",
+    "name": "logs",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_lifecycle_configuration",
+    "name": "logs",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_policy",
+    "name": "logs",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_lb",
+    "name": "api",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_lb_target_group",
+    "name": "api",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_lb_listener",
+    "name": "api",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_cloudfront_vpc_origin",
+    "name": "api",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_cloudfront_origin_access_control",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_cloudfront_function",
+    "name": "router",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_cloudfront_response_headers_policy",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_cloudfront_distribution",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "edge",
+    "type": "aws_s3_bucket_policy",
+    "name": "web",
+    "source": "modules/edge/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_sqs_queue",
+    "name": "dlq",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_sqs_queue",
+    "name": "requests",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_sqs_queue_redrive_allow_policy",
+    "name": "dlq",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_sqs_queue_policy",
+    "name": "requests",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_iam_role",
+    "name": "worker",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_cloudwatch_log_group",
+    "name": "worker",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_iam_role_policy",
+    "name": "worker",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_lambda_function",
+    "name": "worker",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_lambda_event_source_mapping",
+    "name": "requests",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_cloudwatch_event_rule",
+    "name": "recovery",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_cloudwatch_event_target",
+    "name": "recovery",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_lambda_permission",
+    "name": "recovery",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
+    "type": "aws_cloudwatch_metric_alarm",
+    "name": "dead_letters",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_cloudwatch_log_group",
+    "name": "keys",
+    "source": "modules/identity/keys.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_iam_role",
+    "name": "keys",
+    "source": "modules/identity/keys.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_iam_role_policy",
+    "name": "keys",
+    "source": "modules/identity/keys.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_lambda_function",
+    "name": "keys",
+    "source": "modules/identity/keys.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_cognito_user_pool",
+    "name": "this",
+    "source": "modules/identity/main.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_cognito_user_pool_client",
+    "name": "web",
+    "source": "modules/identity/main.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_cognito_user_pool_domain",
+    "name": "this",
+    "source": "modules/identity/main.tf"
+  },
+  {
+    "module": "identity",
+    "type": "aws_cognito_user_group",
+    "name": "operators",
+    "source": "modules/identity/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc",
+    "name": "this",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_internet_gateway",
+    "name": "this",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_subnet",
+    "name": "app",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_subnet",
+    "name": "data",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route_table",
+    "name": "app",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route_table",
+    "name": "data",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route_table_association",
+    "name": "app",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route_table_association",
+    "name": "data",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_security_group",
+    "name": "alb",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_security_group",
+    "name": "app",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_security_group",
+    "name": "worker",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_security_group",
+    "name": "database",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_security_group",
+    "name": "endpoints",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_ingress_rule",
+    "name": "alb",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_ingress_rule",
+    "name": "app",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_egress_rule",
+    "name": "alb",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_ingress_rule",
+    "name": "database",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_egress_rule",
+    "name": "database",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_ingress_rule",
+    "name": "endpoints",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_egress_rule",
+    "name": "endpoints",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_endpoint",
+    "name": "interface",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_endpoint",
+    "name": "s3",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_egress_rule",
+    "name": "s3",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_subnet",
+    "name": "public",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route_table",
+    "name": "public",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route",
+    "name": "public",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route_table_association",
+    "name": "public",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_eip",
+    "name": "nat",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_nat_gateway",
+    "name": "this",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_route",
+    "name": "nat",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_vpc_security_group_egress_rule",
+    "name": "nat",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_cloudwatch_log_group",
+    "name": "flow",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_iam_role",
+    "name": "flow",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_iam_role_policy",
+    "name": "flow",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "network",
+    "type": "aws_flow_log",
+    "name": "this",
+    "source": "modules/network/main.tf"
+  },
+  {
+    "module": "observability",
+    "type": "aws_budgets_budget",
+    "name": "installation",
+    "source": "modules/observability/main.tf"
+  },
+  {
+    "module": "registry",
+    "type": "aws_ecr_repository",
+    "name": "api",
+    "source": "modules/registry/main.tf"
+  },
+  {
+    "module": "registry",
+    "type": "aws_ecr_lifecycle_policy",
+    "name": "api",
+    "source": "modules/registry/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_ecs_cluster",
+    "name": "this",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_cloudwatch_log_group",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_iam_role",
+    "name": "execution",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_iam_role_policy",
+    "name": "execution",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_iam_role",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_iam_role_policy",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_iam_role",
+    "name": "migration",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_iam_role_policy",
+    "name": "migration",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_ecs_task_definition",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_ecs_task_definition",
+    "name": "migration",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_ecs_service",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_appautoscaling_target",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "service",
+    "type": "aws_appautoscaling_policy",
+    "name": "api",
+    "source": "modules/service/main.tf"
+  },
+  {
+    "module": "state",
+    "type": "aws_kms_key",
+    "name": "state",
+    "source": "modules/state/main.tf"
+  },
+  {
+    "module": "state",
+    "type": "aws_s3_bucket",
+    "name": "state",
+    "source": "modules/state/main.tf"
+  },
+  {
+    "module": "state",
+    "type": "aws_s3_bucket_versioning",
+    "name": "state",
+    "source": "modules/state/main.tf"
+  },
+  {
+    "module": "state",
+    "type": "aws_s3_bucket_public_access_block",
+    "name": "state",
+    "source": "modules/state/main.tf"
+  },
+  {
+    "module": "state",
+    "type": "aws_s3_bucket_server_side_encryption_configuration",
+    "name": "state",
+    "source": "modules/state/main.tf"
+  },
+  {
+    "module": "state",
+    "type": "aws_s3_bucket_policy",
+    "name": "state",
+    "source": "modules/state/main.tf"
+  },
+  {
+    "module": "waf",
+    "type": "aws_wafv2_web_acl",
+    "name": "shared",
+    "source": "modules/waf/main.tf"
+  },
+  {
+    "module": "waf",
+    "type": "aws_cloudwatch_log_group",
+    "name": "waf",
+    "source": "modules/waf/main.tf"
+  },
+  {
+    "module": "waf",
+    "type": "aws_wafv2_web_acl_logging_configuration",
+    "name": "shared",
+    "source": "modules/waf/main.tf"
+  }
+]

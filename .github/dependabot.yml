@@ -1,0 +1,36 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      aws-sdk:
+        patterns: ['@aws-sdk/*']
+  - package-ecosystem: npm
+    directory: /apps/web
+    schedule:
+      interval: weekly
+    groups:
+      next-react:
+        patterns: ['next', 'react', 'react-dom']
+  - package-ecosystem: terraform
+    directory: /stacks/environment
+    schedule:
+      interval: weekly
+  - package-ecosystem: terraform
+    directory: /stacks/shared
+    schedule:
+      interval: weekly
+  - package-ecosystem: terraform
+    directory: /stacks/state
+    schedule:
+      interval: weekly
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+  - package-ecosystem: docker
+    directory: /apps/api
+    schedule:
+      interval: weekly

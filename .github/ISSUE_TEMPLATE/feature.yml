@@ -1,0 +1,17 @@
+name: Feature / Mejora
+description: Propose an improvement to the platform or documentation.
+title: "[Feature]: "
+body:
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case / Caso de uso
+      description: Explain the problem before proposing implementation.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal and tradeoffs / Propuesta y alternativas
+    validations:
+      required: true

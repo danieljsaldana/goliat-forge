@@ -1,0 +1,9 @@
+{
+  "name": "Goliat Forge",
+  "tagline": "A modular application platform for AWS",
+  "author": "Daniel J. Saldaña",
+  "author_url": "https://danieljsaldana.dev/",
+  "repository": "https://github.com/danieljsaldana/goliat-forge",
+  "site_url": "https://danieljsaldana.github.io/goliat-forge/",
+  "sponsor_url": "https://github.com/sponsors/danieljsaldana"
+}

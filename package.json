@@ -1,0 +1,39 @@
+{
+  "name": "goliat-forge",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A modular AWS application platform with private Fargate workloads and a working reference application.",
+  "author": {
+    "name": "Daniel J. Salda\u00f1a",
+    "url": "https://danieljsaldana.dev/"
+  },
+  "license": "PolyForm-Noncommercial-1.0.0",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.mjs",
+    "test:site": "node --test tests/site.browser.mjs",
+    "test:integration": "node --test tests/*.integration.mjs",
+    "site": "python3 scripts/build_site.py",
+    "demo": "npm run setup:web && npm run build:web && node apps/api/server.mjs --demo",
+    "package:worker": "python3 scripts/package_worker.py",
+    "build:web": "python3 scripts/build_frontend.py",
+    "setup:web": "npm ci --prefix apps/web --ignore-scripts --no-audit --no-fund"
+  },
+  "dependencies": {
+    "@aws-sdk/client-lambda": "3.1161.0",
+    "@aws-sdk/client-secrets-manager": "3.1161.0",
+    "@aws-sdk/client-sqs": "3.1161.0",
+    "@aws-sdk/credential-providers": "3.1161.0",
+    "@aws-sdk/rds-signer": "3.1161.0",
+    "aws-jwt-verify": "5.2.1",
+    "mongodb": "7.8.0",
+    "mysql2": "3.24.6",
+    "pg": "8.23.1"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1"
+  }
+}

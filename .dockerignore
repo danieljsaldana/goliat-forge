@@ -1,0 +1,10 @@
+**
+!package.json
+!package-lock.json
+!apps/
+!apps/api/
+!apps/api/**
+!apps/shared/
+!apps/shared/**
+!LICENSE
+!NOTICE

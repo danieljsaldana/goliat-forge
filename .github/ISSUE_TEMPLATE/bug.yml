@@ -1,0 +1,24 @@
+name: Bug report / Error
+description: Report a reproducible product issue with fictional data.
+title: "[Bug]: "
+body:
+  - type: input
+    id: version
+    attributes:
+      label: Version / Versión
+      description: VERSION file or release tag.
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and expected result / Problema y resultado esperado
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduction / Reproducción
+      description: Steps and sanitized configuration. Never paste credentials, Terraform state or saved plans.
+    validations:
+      required: true
