@@ -3,7 +3,9 @@ import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
 import {renderDiagramSvg} from '../site/diagram.js';
 const root=new URL('../',import.meta.url),check=process.argv.includes('--check');
-async function output(path,content){const url=new URL(path,root);if(check){if(await readFile(url,'utf8')!==content)throw Error('Outdated generated diagram: '+path);}else await writeFile(url,content);}
+const iconVersion=createHash('sha256').update(await readFile(new URL('site/assets/icons.svg',root))).digest('hex').slice(0,12);
+const versionIcons=content=>content.replace(/assets\/icons\.svg(?:\?v=[a-f0-9]{12})?#/g,'assets/icons.svg?v='+iconVersion+'#');
+async function output(path,content){content=versionIcons(content);const url=new URL(path,root);if(check){if(await readFile(url,'utf8')!==content)throw Error('Outdated generated diagram: '+path);}else await writeFile(url,content);}
 await mkdir(new URL('site/diagrams/',root),{recursive:true});
 for(const view of ['overview','network']){
  await output('site/assets/architecture-'+view+'.svg',renderDiagramSvg({view})+'\n');

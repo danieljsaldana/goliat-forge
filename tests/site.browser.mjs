@@ -182,6 +182,21 @@ test('configuration switch ignores stale responses and includes the full AWS dem
  }finally{release?.();await page.close();}
 });
 
+test('configuration copy icon survives a cached sprite from before the icon was added',async()=>{
+ const legacy=(await readFile('site/assets/icons.svg','utf8')).replace(/<symbol id="copy"[\s\S]*?<\/symbol>/,'');
+ assert.ok(!legacy.includes('id="copy"'));
+ for(const [url,width]of [[website+'/',390],[website+'/en/',1440],[sourceWebsite+'/site/index.htm',390]]){
+  const page=await testPage({viewport:{width,height:960}});
+  try{
+   await page.route('**/assets/icons.svg',route=>route.fulfill({contentType:'image/svg+xml',body:legacy}));
+   await page.goto(url,{waitUntil:'networkidle'});
+   const icon=page.locator('#copy-config svg');
+   await expect.poll(()=>icon.evaluate(svg=>svg.getBBox().width),{timeout:2000}).toBeGreaterThan(0);
+   await expect(page.locator('#copy-config')).toBeEnabled();
+  }finally{await page.close();}
+ }
+});
+
 test('architecture hero: Nexus-style views, component selection and detailed diagram stay synchronized',async()=>{
  const page=await testPage({reducedMotion:'reduce'}),failures=errors(page);
  try{

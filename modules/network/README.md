@@ -36,6 +36,10 @@ Types, defaults and validation rules: [variables.tf](variables.tf). Tipos, valor
 
 [Output expressions / Expresiones de salida](outputs.tf) · [Product configuration / Configuración del producto](../../docs/configuration.md)
 
+Network outputs include readiness dependencies: attached Internet Gateway for CloudFront VPC origins, configured subnet routing/endpoints, and installed security-group rules. Downstream resources wait for that setup before starting; private subnets keep their existing routing model.
+
+Las salidas incluyen dependencias de preparación: Internet Gateway conectado para CloudFront VPC origins, rutas y endpoints configurados, y reglas de seguridad instaladas. Los consumidores esperan a esa preparación; las subredes privadas conservan su modelo de rutas.
+
 ## Flow-log delivery / Entrega de logs de red
 
 The delivery role is limited to flow logs in this account and region. Log creation/writes are scoped to the environment log group. `DescribeLogGroups` uses a separate wildcard-resource statement restricted to the workload region, because this list action does not support resource-level permissions. Delivery waits for the role policy to be attached.

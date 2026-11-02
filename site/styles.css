@@ -128,7 +128,7 @@
 .config-code-tools .code-caption{min-width:0;padding:0;font-size:11px;line-height:1.65;color:#b8cdd4;overflow-wrap:anywhere}
 .config-code-tools .button{flex-shrink:0;gap:7px;min-height:34px;padding:6px 10px;border:1px solid #607c89;background:#2c4654;color:#f0f6f8;font-size:11px;line-height:1.5}
 .config-code-tools .button:hover{background:#395968;border-color:#93b1bc}
-.config-code-tools .icon{width:14px;height:14px}
+.config-code-tools .icon{width:16px;height:16px}
 .config-card button:focus-visible{outline-color:#efbd87;outline-offset:3px}
 #config-status{display:block;margin:0;font-size:11px;line-height:1.7;color:#e5d2ad;overflow-wrap:anywhere}
 #config-status:not(:empty){padding:10px 18px;border-bottom:1px solid #354b57;background:#243d49}

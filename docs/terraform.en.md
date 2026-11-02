@@ -40,6 +40,8 @@ make site-check
 
 Terraform tests use mocked providers and never create AWS resources. They cover private access, WAF/OAC, separate administrator secrets, deletion protection, data engines/readers, capacity and worker/queue timeout consistency. CI also exercises data contracts with disposable PostgreSQL, MySQL and MongoDB databases without an AWS account.
 
+`make terraform-test` also checks the actual dependency graph. CloudFront waits for the attached Internet Gateway; network consumers wait for routes, endpoints and security rules; ECS and migrations wait for their IAM policies; Aurora/DocumentDB consumers wait for the writer instance. This prevents workloads from starting when only a resource identifier exists and preserves dependencies during teardown. The gateway requirement adds no public routes to private subnets.
+
 Validation and mocks cannot verify account quotas, regional instance-class availability, certificate coverage or real IAM deployment permissions. Before production, review the real plan, restore a test backup and verify endpoints using users with distinct permissions.
 
 ## Boundaries

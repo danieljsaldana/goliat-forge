@@ -158,6 +158,7 @@ resource "aws_ecs_task_definition" "migration" {
     }
     }
   ])
+  depends_on = [aws_iam_role_policy.execution, aws_iam_role_policy.migration]
 }
 
 resource "aws_ecs_service" "api" {
@@ -184,6 +185,8 @@ resource "aws_ecs_service" "api" {
     container_port   = 8080
   }
   propagate_tags = "SERVICE"
+  # Keep task permissions available throughout service creation and draining.
+  depends_on = [aws_iam_role_policy.execution, aws_iam_role_policy.api]
 }
 
 resource "aws_appautoscaling_target" "api" {

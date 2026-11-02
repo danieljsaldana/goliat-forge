@@ -16,6 +16,8 @@ output "port" {
 output "host" {
   description = "Writer endpoint used by the reference app for reads and writes."
   value       = local.postgres ? aws_db_instance.this[0].address : local.aurora ? aws_rds_cluster.aurora[0].endpoint : aws_docdb_cluster.this[0].endpoint
+  # A cluster endpoint exists before its writer compute is ready to connect.
+  depends_on = [aws_rds_cluster_instance.writer, aws_docdb_cluster_instance.writer]
 }
 
 output "resource_id" {

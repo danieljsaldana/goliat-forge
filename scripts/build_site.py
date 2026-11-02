@@ -111,6 +111,9 @@ def build():
     for filename in ['styles.css','diagram.js','lab.js','github.js','standalone.js']:
         shutil.copyfile(SITE/filename,OUT/filename)
     shutil.copytree(SITE/'assets',OUT/'assets',dirs_exist_ok=True)
+    icon_version=hashlib.sha256((OUT/'assets/icons.svg').read_bytes()).hexdigest()[:12]
+    def version_icons(text):
+        return re.sub(r'assets/icons[.]svg(?:[?]v=[a-f0-9]{12})?#','assets/icons.svg?v='+icon_version+'#',text)
     shutil.copytree(SITE/'content',OUT/'content',dirs_exist_ok=True)
     shutil.copyfile(ROOT/'apps/shared/domain.mjs',OUT/'domain.mjs')
     for name in ['common','dev','prod']:
@@ -133,7 +136,7 @@ def build():
         if name in active:raise RuntimeError('Unexpected JavaScript import cycle')
         active.add(name)
         source=(ROOT/'apps/shared/domain.mjs') if name=='domain.mjs' else SITE/name
-        text=source.read_text().replace("from '../apps/shared/domain.mjs'","from './domain.mjs'")
+        text=version_icons(source.read_text()).replace("from '../apps/shared/domain.mjs'","from './domain.mjs'")
         def dependency(match):
             target=match[2][2:]
             return match[1]+match[2]+'?v='+module(target)+match[3]
@@ -143,7 +146,7 @@ def build():
     for name in ['app.js','standalone.js']:module(name)
     stylesheet_hash=hashlib.sha256((SITE/'styles.css').read_bytes()).hexdigest()[:12]
     social_image_hash=hashlib.sha256((OUT/'assets/social-card.png').read_bytes()).hexdigest()[:12]
-    html=(SITE/'index.html').read_text().replace('href="styles.css"',f'href="styles.css?v={stylesheet_hash}"').replace('src="app.js"',f'src="app.js?v={hashes["app.js"]}"')
+    html=version_icons((SITE/'index.html').read_text()).replace('href="styles.css"',f'href="styles.css?v={stylesheet_hash}"').replace('src="app.js"',f'src="app.js?v={hashes["app.js"]}"')
     if original_repository and product.get('repository')!=original_repository:html=html.replace(original_repository,product['repository'])
     html=re.sub(r'(<span[^>]*data-version[^>]*>).*?(</span>)',lambda m:m[1]+'v'+product['version']+m[2],html)
     if valid_snapshot:
@@ -196,7 +199,7 @@ def build():
             output=target_for(source);document(str(source.relative_to(ROOT)),'<h1>'+escape(source.name)+'</h1><pre><code>'+escape(source.read_text())+'</code></pre>',output)
     for view in ['overview','network']:
         path=OUT/f'diagrams/{view}.html';path.parent.mkdir(exist_ok=True)
-        page=(SITE/f'diagrams/{view}.html').read_text()
+        page=version_icons((SITE/f'diagrams/{view}.html').read_text())
         path.write_text(page.replace('src="../standalone.js"',f'src="../standalone.js?v={hashes["standalone.js"]}"').replace('href="../styles.css"',f'href="../styles.css?v={stylesheet_hash}"'))
     for view in ['overview','network']:
         alias=OUT/f'site/diagrams/{view}.html';alias.parent.mkdir(parents=True,exist_ok=True)

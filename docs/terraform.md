@@ -40,6 +40,8 @@ make site-check
 
 Las pruebas Terraform usan proveedores simulados y no crean recursos en AWS. Cubren acceso privado, WAF/OAC, secretos de administrador separados, protección de borrado, motores y lectores, capacidades válidas y coherencia entre timeout SQS y worker. CI también prueba los contratos de datos con PostgreSQL, MySQL y MongoDB de prueba, sin usar una cuenta AWS.
 
+`make terraform-test` también comprueba el grafo real de dependencias. CloudFront espera al Internet Gateway conectado; los consumidores de red esperan a rutas, endpoints y reglas de seguridad; ECS y las migraciones esperan a sus políticas IAM; los consumidores de Aurora/DocumentDB esperan a la instancia escritora. Esto evita arrancar cargas cuando solo existe el identificador de un recurso y conserva las dependencias durante el borrado. El requisito del gateway no añade rutas públicas a las subredes privadas.
+
 `terraform validate` y los mocks no comprueban cuotas, disponibilidad regional de clases de instancia, compatibilidad de un certificado o permisos de una cuenta real. Antes de producción revisa el plan real, restaura un backup de prueba y valida los endpoints con usuarios de permisos distintos.
 
 ## Límites a tener presentes

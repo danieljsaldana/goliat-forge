@@ -47,6 +47,7 @@ function applyLanguage(locale){
  document.querySelector('.languages').setAttribute('aria-label',locale==='es'?'Idioma':'Language');
  document.querySelector('.main-nav').setAttribute('aria-label',locale==='es'?'Navegación':'Navigation');
  $('copy-config').setAttribute('aria-label',state.dictionaries[locale]['start.copy']);
+ $('copy-config').setAttribute('title',state.dictionaries[locale]['start.copy']);
  document.querySelector('.config-tabs').setAttribute('aria-label',locale==='es'?'Configuración':'Configuration');
  for(const link of document.querySelectorAll('a[href^="docs/"]')){if(!link.pathname.includes('/modules/')){const url=new URL(link.href);if(locale==='en')url.searchParams.set('lang','en');else url.searchParams.delete('lang');link.href=url.pathname.split('/').slice(-2).join('/')+url.search;}}
  renderModules();renderStars();databaseExplorer.update(locale);diagram.update({locale});heroArchitecture.update(locale);lab?.update();
