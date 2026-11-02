@@ -5,6 +5,9 @@ common = {
 
   # Budget alerts are advisory; they never stop resources automatically.
   monthly_budget_usd = 150
+
+  # Requests per IP over five minutes, shared by all environment entry points.
+  waf_rate_limit     = 1000
   alert_emails       = [] # Add an address you control; activate the Installation cost tag.
   log_retention_days = 30
 

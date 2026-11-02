@@ -19,7 +19,7 @@ Restore RDS into a new instance and reconnect the application as a real exercise
 ./forge --profile platform destroy --config .local/config --environment dev --confirm myforge --yes
 ```
 
-The CLI saves and applies the exact destroy plan. RDS/ALB protections and nonempty buckets can deliberately block it. Review backups, apply an explicit deletion_protection change and choose final-snapshot handling before retrying. The final snapshot name is <installation>-<environment>-final: handle an older snapshot before reusing it. Object versions, content and images are not purged automatically.
+The CLI saves and applies the exact destroy plan. Database, ALB and Cognito protections and nonempty buckets can deliberately block it. Review backups, apply an explicit deletion_protection change and choose final-snapshot handling before retrying. The final snapshot name is <installation>-<environment>-final: configure a new `db_final_snapshot_identifier` if a snapshot already uses that name. Object versions, content and images are not purged automatically.
 
 Use --environment all --destroy-shared only after environment states are empty. ECR images are not force-deleted. The state bucket uses prevent_destroy and retains its local bootstrap state. Retiring it is a separate reviewed procedure after preserving/exporting all states. Never delete state files to force cleanup.
 

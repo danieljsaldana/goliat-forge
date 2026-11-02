@@ -141,3 +141,17 @@ run "aurora_mysql_complete_application" {
     error_message = "Aurora MySQL must expose the proper adapter and reader information."
   }
 }
+
+run "larger_fargate_capacity" {
+  command = apply
+  variables { environment = { name = "dev", vpc_cidr = "10.40.0.0/16", cpu = 4096, memory = 8192, autoscaling = { target_cpu = 70 } } }
+  assert {
+    condition     = output.installation.active == false
+    error_message = "Valid larger Fargate capacity must keep initial activation gated by migration."
+  }
+}
+run "reject_invalid_fargate_pair" {
+  command = plan
+  variables { environment = { name = "dev", vpc_cidr = "10.40.0.0/16", cpu = 4096, memory = 512 } }
+  expect_failures = [var.environment]
+}

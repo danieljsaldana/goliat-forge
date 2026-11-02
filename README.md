@@ -6,7 +6,7 @@
 
 Forge combines reusable Terraform modules, commented configuration, a deployment CLI, a bilingual product website and **Luma**: a Next.js static frontend, private Node.js API, selectable PostgreSQL/MySQL/DocumentDB persistence and an optional SQS/Lambda worker.
 
-[Product guide](docs/product.en.md) · [Architecture](docs/architecture.en.md) · [Deployment](docs/deployment.en.md) · [Configuration](docs/configuration.en.md) · [Databases and IAM](docs/databases.en.md) · [Security](docs/security.en.md) · [Author](https://danieljsaldana.dev/)
+[Product guide](docs/product.en.md) · [Architecture](docs/architecture.en.md) · [Deployment](docs/deployment.en.md) · [Configuration](docs/configuration.en.md) · [Terraform contracts](docs/terraform.en.md) · [Databases and IAM](docs/databases.en.md) · [Security](docs/security.en.md) · [Author](https://danieljsaldana.dev/)
 
 ## Architecture
 
@@ -107,7 +107,7 @@ npm run test:site
 python3 scripts/check_publication.py
 ```
 
-`terraform-test` uses mocked providers and never creates AWS resources. Optional SQL integration uses a disposable local PostgreSQL database via `TEST_DATABASE_URL`; CI runs it against PostgreSQL 17. [Resource catalog](docs/resources.en.md) lists declarations rather than claiming deployed counts.
+`terraform-test` uses mocked providers and never creates AWS resources. CI exercises PostgreSQL 17, MySQL 8.4 and an authenticated MongoDB replica set in disposable containers. The browser suite checks the real Next.js export and the interactive product demo. [Resource catalog](docs/resources.en.md) lists declarations rather than claiming deployed counts.
 
 [Reference application](docs/reference.en.md) · [GitHub and CI](docs/workflows.en.md) · [Costs](docs/costs.en.md) · [Recovery and teardown](docs/operations.en.md) · [Contributing](CONTRIBUTING.md)
 

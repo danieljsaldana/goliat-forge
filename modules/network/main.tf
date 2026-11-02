@@ -1,37 +1,3 @@
-variable "database_port" {
-  type    = number
-  default = 5432
-}
-
-variable "events_enabled" {
-  type    = bool
-  default = false
-}
-
-variable "name" {
-  type = string
-}
-
-variable "region" {
-  type = string
-}
-
-variable "cidr" {
-  type = string
-}
-
-variable "endpoint_az_count" {
-  type = number
-}
-
-variable "nat_enabled" {
-  type = bool
-}
-
-variable "retention" {
-  type = number
-}
-
 data "aws_availability_zones" "available" {
   state = "available"
 }
@@ -313,33 +279,3 @@ resource "aws_flow_log" "this" {
   iam_role_arn    = aws_iam_role.flow.arn
   log_destination = aws_cloudwatch_log_group.flow.arn
 }
-
-output "vpc_id" {
-  value = aws_vpc.this.id
-}
-
-output "app_subnets" {
-  value = aws_subnet.app[*].id
-}
-
-output "data_subnets" {
-  value = aws_subnet.data[*].id
-}
-
-output "alb_sg" {
-  value = aws_security_group.alb.id
-}
-
-output "app_sg" {
-  value = aws_security_group.app.id
-}
-
-output "worker_sg" {
-  value = aws_security_group.worker.id
-}
-
-output "database_sg" {
-  value = aws_security_group.database.id
-}
-
-output "availability_zones" { value = local.azs }

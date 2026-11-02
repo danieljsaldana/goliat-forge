@@ -37,3 +37,10 @@ The identity-key Lambda is a separate helper: it has no business data access and
 ## Database bootstrap
 
 A separate Fargate migration task retrieves the managed master secret, creates the schema and grants least-privilege SQL users. The API role cannot read that secret. Migration runs inside the VPC without SSH, a bastion or direct PostgreSQL access from GitHub or your Mac. Future schema changes need versioned migrations and compatibility planning; the included bootstrap idempotently creates the initial schema.
+
+
+## Product website demo
+
+The website contains a separate browser-only preview of the shared domain logic. Web + API mode does not create an outbox. The SQS mode simulates failed delivery, recovery and duplicate events. User A and B see separate records; the operator can view both. Changing mode or pressing Reset clears the fictional in-memory data. This preview neither runs the real Next.js export nor proves IAM or network enforcement; `npm run demo` runs the real Next.js/Node.js application locally.
+
+Worker timeout, memory, retry count, queue retention and recovery frequency are configured in `environment.events`. The five-minute timer and five receives described above are defaults. The CloudWatch DLQ alarm has no automatic external notification integration.

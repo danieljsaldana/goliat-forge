@@ -1,51 +1,3 @@
-variable "frontend_script_hashes" {
-  type    = list(string)
-  default = []
-}
-
-variable "name" {
-  type = string
-}
-
-variable "vpc_id" {
-  type = string
-}
-
-variable "subnets" {
-  type = list(string)
-}
-
-variable "alb_sg" {
-  type = string
-}
-
-variable "waf_arn" {
-  type = string
-}
-
-variable "region" {
-  type = string
-}
-
-variable "protect" {
-  type = bool
-}
-
-variable "portals" {
-  type = map(object({
-    label = string, view = string
-    }
-  ))
-}
-
-variable "domain_name" {
-  type = string
-}
-
-variable "certificate_arn" {
-  type = string
-}
-
 data "aws_caller_identity" "current" {
 }
 
@@ -350,24 +302,4 @@ resource "aws_s3_bucket_policy" "web" {
     ]
     }
   )
-}
-
-output "url" {
-  value = "https://${coalesce(var.domain_name, aws_cloudfront_distribution.web.domain_name)}"
-}
-
-output "bucket" {
-  value = aws_s3_bucket.web.id
-}
-
-output "distribution_id" {
-  value = aws_cloudfront_distribution.web.id
-}
-
-output "target_group_arn" {
-  value = aws_lb_target_group.api.arn
-}
-
-output "listener_arn" {
-  value = aws_lb_listener.api.arn
 }

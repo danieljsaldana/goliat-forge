@@ -1,19 +1,8 @@
-variable "name" {
-  type = string
-}
-
-variable "url" {
-  type = string
-}
-
-variable "mfa" {
-  type = bool
-}
-
 resource "aws_cognito_user_pool" "this" {
   name                     = var.name
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
+  deletion_protection      = var.protect ? "ACTIVE" : "INACTIVE"
   username_configuration {
     case_sensitive = false
   }
@@ -77,16 +66,4 @@ resource "aws_cognito_user_group" "operators" {
   name         = "Operators"
   user_pool_id = aws_cognito_user_pool.this.id
   description  = "Can view all reference application requests"
-}
-
-output "pool_id" {
-  value = aws_cognito_user_pool.this.id
-}
-
-output "client_id" {
-  value = aws_cognito_user_pool_client.web.id
-}
-
-output "domain_prefix" {
-  value = aws_cognito_user_pool_domain.this.domain
 }

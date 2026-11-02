@@ -6,7 +6,7 @@
 
 Forge reúne módulos Terraform reutilizables, configuración comentada, CLI de despliegue, web bilingüe y **Luma**: frontend Next.js estático, API Node.js privada, persistencia PostgreSQL/MySQL/DocumentDB seleccionable y SQS/Lambda opcionales.
 
-[Funcionamiento](docs/product.md) · [Arquitectura](docs/architecture.md) · [Despliegue](docs/deployment.md) · [Variables](docs/configuration.md) · [Motores, IAM y réplicas](docs/databases.md) · [Seguridad](docs/security.md) · [Autor](https://danieljsaldana.dev/)
+[Funcionamiento](docs/product.md) · [Arquitectura](docs/architecture.md) · [Despliegue](docs/deployment.md) · [Variables](docs/configuration.md) · [Contratos Terraform](docs/terraform.md) · [Motores, IAM y réplicas](docs/databases.md) · [Seguridad](docs/security.md) · [Autor](https://danieljsaldana.dev/)
 
 ## Arquitectura
 
@@ -107,7 +107,7 @@ npm run test:site
 python3 scripts/check_publication.py
 ```
 
-Las pruebas Terraform usan proveedores simulados y no crean recursos AWS. La integración SQL opcional utiliza una base PostgreSQL local desechable indicada mediante `TEST_DATABASE_URL`; CI la ejecuta con PostgreSQL 17. El [catálogo de recursos](docs/resources.md) refleja declaraciones de código, no una cuenta desplegada.
+Las pruebas Terraform usan proveedores simulados y no crean recursos AWS. CI prueba PostgreSQL 17, MySQL 8.4 y un replica set MongoDB autenticado en contenedores desechables. Las pruebas de navegador comprueban el export Next.js real y la demo interactiva del producto. El [catálogo de recursos](docs/resources.md) refleja declaraciones de código, no una cuenta desplegada.
 
 [Aplicación de referencia](docs/reference.md) · [GitHub y CI](docs/workflows.md) · [Costes](docs/costs.md) · [Recuperación y destrucción](docs/operations.md) · [Contribuir](CONTRIBUTING.es.md)
 

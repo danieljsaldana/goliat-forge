@@ -217,6 +217,12 @@
   },
   {
     "module": "events",
+    "type": "aws_sqs_queue_policy",
+    "name": "dlq",
+    "source": "modules/events/main.tf"
+  },
+  {
+    "module": "events",
     "type": "aws_iam_role",
     "name": "worker",
     "source": "modules/events/main.tf"

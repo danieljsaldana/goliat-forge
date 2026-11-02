@@ -52,6 +52,11 @@ jobs:
         with:
           terraform_version: '1.17.1'
           terraform_wrapper: false
+      - uses: terraform-linters/setup-tflint@6ffdbaa3be476b3431f7275c26966ef32ff60337 # v6.3.2
+        with:
+          tflint_version: v0.65.0
+      - name: Lint Terraform module contracts
+        run: tflint --recursive --format compact
       - run: npm ci --ignore-scripts --no-audit --no-fund
       - run: npm run setup:web
       - name: Check diagram fallbacks and source previews

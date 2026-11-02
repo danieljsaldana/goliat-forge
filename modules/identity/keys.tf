@@ -1,15 +1,3 @@
-variable "region" {
-  type = string
-}
-
-variable "archive" {
-  type = string
-}
-
-variable "retention" {
-  type = number
-}
-
 resource "aws_cloudwatch_log_group" "keys" {
   name              = "/aws/lambda/${var.name}-identity-keys"
   retention_in_days = var.retention
@@ -58,8 +46,4 @@ resource "aws_lambda_function" "keys" {
     }
   }
   depends_on = [aws_iam_role_policy.keys, aws_cloudwatch_log_group.keys]
-}
-
-output "key_relay_arn" {
-  value = aws_lambda_function.keys.arn
 }

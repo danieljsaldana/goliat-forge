@@ -40,7 +40,7 @@ resource "aws_rds_cluster" "aurora" {
   preferred_maintenance_window        = "sun:03:00-sun:04:00"
   deletion_protection                 = var.protect
   skip_final_snapshot                 = var.skip_final_snapshot
-  final_snapshot_identifier           = "${var.name}-final"
+  final_snapshot_identifier           = local.final_snapshot_identifier
   copy_tags_to_snapshot               = true
   enabled_cloudwatch_logs_exports     = var.kind == "aurora-mysql" ? ["error"] : ["postgresql"]
   apply_immediately                   = false

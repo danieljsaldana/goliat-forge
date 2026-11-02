@@ -16,6 +16,7 @@ resource "aws_docdb_cluster_parameter_group" "this" {
     name  = "audit_logs"
     value = "enabled"
   }
+  lifecycle { create_before_destroy = true }
 }
 resource "aws_docdb_cluster" "this" {
   count                           = local.documentdb ? 1 : 0
@@ -35,7 +36,7 @@ resource "aws_docdb_cluster" "this" {
   preferred_maintenance_window    = "sun:03:00-sun:04:00"
   deletion_protection             = var.protect
   skip_final_snapshot             = var.skip_final_snapshot
-  final_snapshot_identifier       = "${var.name}-final"
+  final_snapshot_identifier       = local.final_snapshot_identifier
   enabled_cloudwatch_logs_exports = ["audit"]
   apply_immediately               = false
 }

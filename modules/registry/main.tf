@@ -1,7 +1,3 @@
-variable "name" {
-  type = string
-}
-
 resource "aws_ecr_repository" "api" {
   name                 = "${var.name}/api"
   image_tag_mutability = "IMMUTABLE"
@@ -27,12 +23,4 @@ resource "aws_ecr_lifecycle_policy" "api" {
     ]
     }
   )
-}
-
-output "url" {
-  value = aws_ecr_repository.api.repository_url
-}
-
-output "arn" {
-  value = aws_ecr_repository.api.arn
 }

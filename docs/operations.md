@@ -19,7 +19,7 @@ Prueba restaurar RDS a una instancia nueva y reconectar la aplicación; tener ba
 ./forge --profile platform destroy --config .local/config --environment dev --confirm myforge --yes
 ```
 
-El comando genera un plan de destrucción guardado y aplica ese mismo plan. Las protecciones de RDS/ALB y los buckets no vacíos pueden bloquearlo intencionadamente. Revisa backups, desactiva deletion_protection mediante un plan normal y define la política de snapshot antes de repetir. El nombre final de snapshot es <instalación>-<entorno>-final: cambia o gestiona un snapshot previo antes de reutilizar el nombre. No se purgan automáticamente versiones, contenido ni imágenes.
+El comando genera un plan de destrucción guardado y aplica ese mismo plan. Las protecciones de base de datos, ALB y Cognito y los buckets no vacíos pueden bloquearlo intencionadamente. Revisa backups, desactiva deletion_protection mediante un plan normal y define la política de snapshot antes de repetir. El nombre final de snapshot es <instalación>-<entorno>-final: configura un `db_final_snapshot_identifier` nuevo si ya existe un snapshot con ese nombre. No se purgan automáticamente versiones, contenido ni imágenes.
 
 Para retirar shared, usa --environment all --destroy-shared, una vez vacíos todos los estados de entornos. ECR no se fuerza a borrar imágenes. El backend S3 tiene prevent_destroy y se conserva, junto con su bootstrap local. Su retiro definitivo requiere una revisión separada y la conservación/exportación de todos los estados. No borres archivos de estado para forzar un teardown.
 

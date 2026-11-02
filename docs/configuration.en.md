@@ -57,3 +57,56 @@ Effective order: `common.tfvars` → `common.auto.tfvars` → `<environment>.tfv
 AWS account selection, SSO and operator permissions stay outside tfvars. AWS manages administrator passwords. The separate demo profile includes its own template. Tests compare Terraform's public fields against the templates to detect undocumented options.
 
 Templates cover **the product's public inputs**. Internal WAF rules, health-check intervals, service TLS configuration and exact IAM policies remain in their modules. Changing arbitrary AWS attributes requires code changes and a security review. Generated runtime parameters are not credentials.
+
+
+## Configurable capacity and boundaries
+
+| Option | Behavior |
+| --- | --- |
+| `common.waf_rate_limit` | 10–100000 requests per IP over five minutes, shared across the installation distributions |
+| `environment.autoscaling.target_cpu` | 10–90 percent CPU target, bounded by `replicas` and `max_replicas` |
+| `autoscaling.scale_in_cooldown` / `scale_out_cooldown` | Whole seconds between scaling decisions, from 0 to 3600 |
+| `db_max_storage_gb` | RDS PostgreSQL storage ceiling. Null uses min(initial storage × 3, 65536 GiB). Does not size cluster storage |
+| `db_final_snapshot_identifier` | Optional unique final snapshot name. Change it before teardown when an earlier snapshot already uses the default name |
+| `deletion_protection` | Protects the database, internal ALB and Cognito pool. Turning it off does not delete them |
+
+The network layout requires a **canonical RFC1918 IPv4 CIDR from /16 to /19**. Public ranges, `/8`, `/20` and host addresses such as `10.40.0.1/16` are rejected. This prevents AWS VPC size errors and undersized application subnets in this layout.
+
+The supported Linux ARM64 Fargate capacity pairs are below. These are per task; account quotas still apply:
+
+| CPU units | Memory in MiB |
+| --- | --- |
+| 256 | 512, 1024 or 2048 |
+| 512 | 1024–4096 in increments of 1024 |
+| 1024 | 2048–8192 in increments of 1024 |
+| 2048 | 4096–16384 in increments of 1024 |
+| 4096 | 8192–30720 in increments of 1024 |
+| 8192 | 16384–61440 in increments of 4096 |
+| 16384 | 32768–122880 in increments of 8192 |
+
+See the [AWS capacity table](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html). The product intentionally stops at 16 vCPU; it does not expose every AWS size or architecture. Terraform reconciles the service desired count to `replicas` on apply, even if autoscaling previously raised it.
+
+## Optional queue and worker settings
+
+`events_enabled = false` omits the business event module. The `events` object defines these settings when enabled:
+
+| Field | Default | Unit / range |
+| --- | --- | --- |
+| `worker_memory_mb` | 256 | 128–10240 MiB |
+| `worker_timeout` | 30 | 1–900 seconds |
+| `max_concurrency` | 2 | 2–50 concurrent queue invocations |
+| `batch_size` | 5 | 1–10 messages per invocation |
+| `max_receive_count` | 5 | 1–100 receives before the DLQ |
+| `retention_days` | 7 | 1–14 days in the source queue |
+| `dlq_retention_days` | 14 | At least source retention, no more than 14 days |
+| `recovery_minutes` | 5 | 1–60 minutes between outbox recovery invocations |
+
+All values are integers. Queue visibility is derived as **six times worker timeout**, following [AWS guidance](https://docs.aws.amazon.com/lambda/latest/dg/services-sqs-configure.html). Reserved function concurrency is `max_concurrency + 1` to leave headroom for recovery. Check account concurrency quotas before raising the limit. The SQS batch size does not change the internal 100-event outbox query limit.
+
+[Terraform contracts and quality](terraform.en.md) · [Security](security.en.md)
+
+To disable RDS storage autoscaling, set `db_max_storage_gb` equal to `db_storage_gb`. Otherwise the ceiling must be at least 10% higher. Near the 65536 GiB ceiling, the default disables autoscaling when that headroom is unavailable. Allocated storage never shrinks automatically.
+
+The CLI checks effective installation name and region in the saved plan JSON before apply. A mismatch with `configure` metadata aborts without applying. JSON is inspected in memory and never published.
+
+The environment name must also match the state selected by `--environment`; the CLI prevents applying Prod configuration against the Dev state or the reverse.

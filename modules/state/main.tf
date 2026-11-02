@@ -1,7 +1,3 @@
-variable "bucket" {
-  type = string
-}
-
 resource "aws_kms_key" "state" {
   description             = "Terraform state encryption"
   enable_key_rotation     = true
@@ -54,12 +50,4 @@ resource "aws_s3_bucket_policy" "state" {
     ]
     }
   )
-}
-
-output "bucket" {
-  value = aws_s3_bucket.state.id
-}
-
-output "kms_arn" {
-  value = aws_kms_key.state.arn
 }

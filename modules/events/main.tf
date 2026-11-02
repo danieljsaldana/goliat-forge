@@ -1,59 +1,19 @@
-variable "database_driver" {
-  type    = string
-  default = "postgres"
-}
-variable "name" {
-  type = string
-}
-
-variable "region" {
-  type = string
-}
-
-variable "archive" {
-  type = string
-}
-
-variable "subnets" {
-  type = list(string)
-}
-
-variable "security_group" {
-  type = string
-}
-
-variable "database_resource_ids" {
-  type = list(string)
-}
-
-variable "environment" {
-  type = map(string)
-}
-
-variable "retention" {
-  type = number
-}
-
-variable "active" {
-  type = bool
-}
-
 data "aws_caller_identity" "current" {
 }
 
 resource "aws_sqs_queue" "dlq" {
   name                      = "${var.name}-dead-letter"
-  message_retention_seconds = 1209600
+  message_retention_seconds = var.settings.dlq_retention_days * 86400
   sqs_managed_sse_enabled   = true
 }
 
 resource "aws_sqs_queue" "requests" {
   name                       = "${var.name}-requests"
-  visibility_timeout_seconds = 180
-  message_retention_seconds  = 604800
+  visibility_timeout_seconds = var.settings.worker_timeout * 6
+  message_retention_seconds  = var.settings.retention_days * 86400
   sqs_managed_sse_enabled    = true
   redrive_policy = jsonencode({
-    deadLetterTargetArn = aws_sqs_queue.dlq.arn, maxReceiveCount = 5
+    deadLetterTargetArn = aws_sqs_queue.dlq.arn, maxReceiveCount = var.settings.max_receive_count
     }
   )
 }
@@ -79,6 +39,16 @@ resource "aws_sqs_queue_policy" "requests" {
     ]
     }
   )
+}
+
+resource "aws_sqs_queue_policy" "dlq" {
+  queue_url = aws_sqs_queue.dlq.id
+  policy = jsonencode({
+    Version = "2012-10-17", Statement = [{
+      Effect    = "Deny", Principal = "*", Action = "sqs:*", Resource = aws_sqs_queue.dlq.arn,
+      Condition = { Bool = { "aws:SecureTransport" = "false" } }
+    }]
+  })
 }
 
 resource "aws_iam_role" "worker" {
@@ -127,9 +97,9 @@ resource "aws_lambda_function" "worker" {
   filename                       = var.archive
   source_code_hash               = filebase64sha256(var.archive)
   architectures                  = ["arm64"]
-  memory_size                    = 256
-  timeout                        = 30
-  reserved_concurrent_executions = 3
+  memory_size                    = var.settings.worker_memory_mb
+  timeout                        = var.settings.worker_timeout
+  reserved_concurrent_executions = var.settings.max_concurrency + 1
   vpc_config {
     subnet_ids         = var.subnets
     security_group_ids = [var.security_group]
@@ -146,15 +116,15 @@ resource "aws_lambda_function" "worker" {
 resource "aws_lambda_event_source_mapping" "requests" {
   event_source_arn = aws_sqs_queue.requests.arn
   function_name    = aws_lambda_function.worker.arn
-  batch_size       = 5
-  scaling_config { maximum_concurrency = 2 }
+  batch_size       = var.settings.batch_size
+  scaling_config { maximum_concurrency = var.settings.max_concurrency }
   function_response_types = ["ReportBatchItemFailures"]
   enabled                 = var.active
 }
 
 resource "aws_cloudwatch_event_rule" "recovery" {
   name                = "${var.name}-outbox"
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(${var.settings.recovery_minutes} ${var.settings.recovery_minutes == 1 ? "minute" : "minutes"})"
   state               = var.active ? "ENABLED" : "DISABLED"
 }
 
@@ -168,11 +138,12 @@ resource "aws_cloudwatch_event_target" "recovery" {
 }
 
 resource "aws_lambda_permission" "recovery" {
-  statement_id  = "OutboxRecovery"
-  action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.worker.function_name
-  principal     = "events.amazonaws.com"
-  source_arn    = aws_cloudwatch_event_rule.recovery.arn
+  statement_id   = "OutboxRecovery"
+  action         = "lambda:InvokeFunction"
+  function_name  = aws_lambda_function.worker.function_name
+  principal      = "events.amazonaws.com"
+  source_arn     = aws_cloudwatch_event_rule.recovery.arn
+  source_account = data.aws_caller_identity.current.account_id
 }
 
 resource "aws_cloudwatch_metric_alarm" "dead_letters" {
@@ -189,17 +160,3 @@ resource "aws_cloudwatch_metric_alarm" "dead_letters" {
     QueueName = aws_sqs_queue.dlq.name
   }
 }
-
-output "queue_url" {
-  value = aws_sqs_queue.requests.id
-}
-
-output "queue_arn" {
-  value = aws_sqs_queue.requests.arn
-}
-
-output "dlq_url" {
-  value = aws_sqs_queue.dlq.id
-}
-
-output "worker_role_arn" { value = aws_iam_role.worker.arn }

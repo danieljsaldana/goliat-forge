@@ -6,7 +6,7 @@
 
 | Flujo | Cuándo | Permisos y resultado |
 | --- | --- | --- |
-| Validate product | PR, main y manual | Lectura de código; tests de API, JWT, PostgreSQL/MySQL/MongoDB, Terraform simulado, Next.js y web |
+| Validate product | PR, main y manual | Lectura de código; tests de API, JWT, PostgreSQL/MySQL/MongoDB, TFLint, Terraform simulado, Next.js y web |
 | Publish product website | Cambios en la web/documentación en main o manual | Artefacto estático y despliegue en el entorno github-pages; no usa AWS |
 | Refresh public GitHub stars | Diario o manual | Solo metadatos públicos en github-stats/stars.json; no recompila Pages |
 | CodeQL | PR, main y semanal | Análisis de JavaScript, Python y workflows; publica resultados de seguridad |
@@ -16,7 +16,7 @@ Actions está fijado por SHA, los runners usan ubuntu-24.04 y los checkouts no c
 
 ## Configurar el repositorio
 
-Cuando exista el repositorio, activa Pages con GitHub Actions, alertas de Dependabot, detección de secretos y protección de main. Requiere Validate product / checks y revisión antes del merge; bloquea pushes forzados y borrados. Activa Discussions si quieres separar preguntas de incidencias. El sitio deriva el enlace real a GitHub y su URL de Pages durante el build. No se inventan repositorios ni estrellas en local.
+En tu fork, activa Pages con GitHub Actions, alertas de Dependabot, detección de secretos y protección de main. Requiere Validate product / checks y revisión antes del merge; bloquea pushes forzados y borrados. Activa Discussions si quieres separar preguntas de incidencias. El sitio deriva el enlace real a GitHub y su URL de Pages durante el build. No se inventan repositorios ni estrellas en local.
 
 La primera ejecución de estrellas crea una rama de datos con un único stars.json. El cliente consulta ese JSON público al volver a la pestaña y cada minuto; una instantánea caducada no se presenta como reciente. El cron no garantiza actualización inmediata y GitHub puede pausar schedules de repositorios inactivos.
 

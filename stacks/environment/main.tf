@@ -30,20 +30,22 @@ module "network" {
 }
 
 module "database" {
-  source              = "../../modules/database"
-  kind                = var.environment.db_kind
-  read_replicas       = var.environment.db_read_replicas
-  availability_zones  = module.network.availability_zones
-  name                = local.name
-  subnets             = module.network.data_subnets
-  security_group      = module.network.database_sg
-  instance_class      = var.environment.db_instance_class
-  engine_version      = var.environment.db_engine_version
-  storage_gb          = var.environment.db_storage_gb
-  multi_az            = var.environment.db_multi_az
-  protect             = var.environment.deletion_protection
-  backup_days         = var.environment.db_backup_days
-  skip_final_snapshot = var.environment.skip_final_snapshot
+  source                    = "../../modules/database"
+  kind                      = var.environment.db_kind
+  read_replicas             = var.environment.db_read_replicas
+  availability_zones        = module.network.availability_zones
+  name                      = local.name
+  subnets                   = module.network.data_subnets
+  security_group            = module.network.database_sg
+  instance_class            = var.environment.db_instance_class
+  engine_version            = var.environment.db_engine_version
+  storage_gb                = var.environment.db_storage_gb
+  max_storage_gb            = var.environment.db_max_storage_gb
+  final_snapshot_identifier = var.environment.db_final_snapshot_identifier
+  multi_az                  = var.environment.db_multi_az
+  protect                   = var.environment.deletion_protection
+  backup_days               = var.environment.db_backup_days
+  skip_final_snapshot       = var.environment.skip_final_snapshot
 }
 
 module "edge" {
@@ -66,7 +68,7 @@ module "identity" {
   name      = local.name
   url       = module.edge.url
   mfa       = var.environment.mfa_required
-  region    = var.common.region
+  protect   = var.environment.deletion_protection
   archive   = var.worker_archive
   retention = var.common.log_retention_days
 }
@@ -84,6 +86,7 @@ module "events" {
   database_driver       = module.database.driver
   retention             = var.common.log_retention_days
   active                = var.activate_workloads
+  settings              = var.environment.events
   environment = {
     AWS_REGION = var.common.region, DB_HOST = module.database.host, DB_NAME = "forge", DB_PORT = tostring(module.database.port), DB_ENGINE = module.database.driver
   }
@@ -110,6 +113,7 @@ module "service" {
   memory                = var.environment.memory
   replicas              = var.environment.replicas
   max_replicas          = var.environment.max_replicas
+  autoscaling           = var.environment.autoscaling
   active                = var.activate_workloads
   retention             = var.common.log_retention_days
   depends_on            = [module.edge.listener_arn]

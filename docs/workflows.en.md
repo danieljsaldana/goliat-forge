@@ -6,7 +6,7 @@
 
 | Workflow | Trigger | Permissions and result |
 | --- | --- | --- |
-| Validate product | PR, main and manual | Read-only source; API, JWT, PostgreSQL/MySQL/MongoDB, mocked Terraform, Next.js and browser tests |
+| Validate product | PR, main and manual | Read-only source; API, JWT, PostgreSQL/MySQL/MongoDB, TFLint, mocked Terraform, Next.js and browser tests |
 | Publish product website | Website/documentation changes on main or manual | Static artifact and github-pages environment deployment; no AWS access |
 | Refresh public GitHub stars | Daily or manual | Public metadata only on github-stats/stars.json; no Pages rebuild |
 | CodeQL | PR, main and weekly | JavaScript, Python and workflow security analysis |
@@ -16,7 +16,7 @@ Actions are pinned by SHA, runners use ubuntu-24.04 and checkouts do not persist
 
 ## Repository settings
 
-Once the repository exists, enable GitHub Pages with Actions, Dependabot alerts, secret scanning and main protection. Require Validate product / checks and review before merge; block force pushes and deletion. Enable Discussions for questions if useful. Site builds derive the actual GitHub and Pages URLs from the repository. Local builds invent neither a repository nor a star count.
+In your fork, enable GitHub Pages with Actions, Dependabot alerts, secret scanning and main protection. Require Validate product / checks and review before merge; block force pushes and deletion. Enable Discussions for questions if useful. Site builds derive the actual GitHub and Pages URLs from the repository. Local builds invent neither a repository nor a star count.
 
 The first stars refresh creates a data branch containing only stars.json. Visible clients read this public snapshot on tab return and every minute. Stale snapshots are not presented as current. The schedule does not promise immediate refresh and GitHub can disable schedules on inactive repositories.
 

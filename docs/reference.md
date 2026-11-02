@@ -37,3 +37,10 @@ La Lambda de claves de identidad es otra función: no procesa negocio ni tiene a
 ## Migración
 
 Una tarea Fargate independiente recupera el secreto maestro de Secrets Manager, crea el esquema y asigna usuarios SQL de permisos limitados. El rol de API no puede leer ese secreto. La tarea se ejecuta en la VPC sin SSH, bastión ni acceso PostgreSQL desde GitHub o tu Mac. Los cambios futuros de esquema deben seguir una política de migraciones versionadas y compatibilidad; la migración incluida crea idempotentemente el esquema inicial.
+
+
+## Demo de la web del producto
+
+La web ofrece una vista independiente de la lógica de dominio en el navegador. El modo Web + API no crea outbox. El modo SQS simula entrega fallida, recuperación y eventos duplicados. Los usuarios A y B ven registros separados; el operador puede consultar ambos. Cambiar de modo o pulsar Reiniciar vacía los datos ficticios en memoria. No ejecuta el export Next.js real ni demuestra por sí sola permisos IAM o controles de red; `npm run demo` ejecuta la aplicación Next.js y Node.js real en local.
+
+El objeto `environment.events` configura timeout, memoria, reintentos, retención y frecuencia de recuperación. Los cinco minutos y cinco recepciones descritos antes son valores iniciales. La alarma de DLQ en CloudWatch no conecta automáticamente un canal de aviso externo.

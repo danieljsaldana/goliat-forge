@@ -3,6 +3,7 @@ from contextlib import redirect_stdout
 import io,json,os
 from pathlib import Path
 import tempfile
+from types import SimpleNamespace
 import unittest
 from unittest.mock import patch
 from forgecli import cli
@@ -27,6 +28,23 @@ class ConfigurationTests(unittest.TestCase):
             folder=Path(temporary);plan=cli.planned(folder,'dev',['-var-file=example'],apply=True)
             self.assertIn('-out='+str(plan),tf.call_args_list[0].args[2])
             self.assertEqual(tf.call_args_list[1].args[2],['apply','-input=false',str(plan)])
+    def test_effective_identity_is_checked_before_any_apply(self):
+        expected={'name':'myforge','region':'eu-west-1'}
+        for name,region in [('another','eu-west-1'),('myforge','eu-west-2')]:
+            with tempfile.TemporaryDirectory() as temporary,patch.object(cli,'tf') as tf:
+                tf.return_value=SimpleNamespace(stdout=json.dumps({'variables':{'common':{'value':{'name':name,'region':region}}}}))
+                with self.assertRaisesRegex(RuntimeError,'This plan was not applied'):
+                    cli.planned(Path(temporary),'dev',[],apply=True,expected=expected)
+                self.assertFalse(any(call.args[2][0]=='apply' for call in tf.call_args_list))
+        with tempfile.TemporaryDirectory() as temporary,patch.object(cli,'tf') as tf:
+            tf.return_value=SimpleNamespace(stdout=json.dumps({'variables':{'common':{'value':expected},'environment':{'value':{'name':'dev'}}}}))
+            plan=cli.planned(Path(temporary),'dev',[],apply=True,expected=expected)
+            self.assertEqual(tf.call_args_list[-1].args[2],['apply','-input=false',str(plan)])
+        with tempfile.TemporaryDirectory() as temporary,patch.object(cli,'tf') as tf:
+            tf.return_value=SimpleNamespace(stdout=json.dumps({'variables':{'common':{'value':expected},'environment':{'value':{'name':'prod'}}}}))
+            with self.assertRaisesRegex(RuntimeError,'Environment name differs'):
+                cli.planned(Path(temporary),'dev',[],apply=True,expected=expected)
+            self.assertFalse(any(call.args[2][0]=='apply' for call in tf.call_args_list))
     def test_destroy_rejects_wrong_confirmation_before_bootstrap(self):
         with tempfile.TemporaryDirectory() as temporary,patch.object(cli.shutil,'which',return_value='/bin/true'),patch.object(cli,'bootstrap') as bootstrap:
             config=Path(temporary);cli.write_private(config/'.installation.json',{'name':'myforge','region':'eu-west-1','environments':['dev','prod']})

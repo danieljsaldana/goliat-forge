@@ -48,12 +48,16 @@ def exclusive(folder):
         yield
 
 
+def valid_installation_name(value):
+    return isinstance(value, str) and re.fullmatch(r'[a-z][a-z0-9-]{1,14}[a-z0-9]', value) and '--' not in value
+
+
 def installation(config):
     path = config / '.installation.json'
     if not path.is_file():
         raise RuntimeError('Run ./forge configure into .local/ first. Source examples cannot be deployed directly.')
     value = json.loads(path.read_text())
-    if not re.fullmatch(r'[a-z][a-z0-9-]{2,15}', value.get('name', '')) or not re.fullmatch(r'[a-z]{2}-[a-z]+-[0-9]', value.get('region', '')):
+    if not valid_installation_name(value.get('name')) or not re.fullmatch(r'[a-z]{2}-[a-z]+-[0-9]', value.get('region', '')):
         raise RuntimeError('Invalid installation metadata.')
     environments = value.get('environments')
     if not isinstance(environments,list) or not environments or any(item not in ['dev','prod','demo'] for item in environments) or len(set(environments)) != len(environments) or ('demo' in environments and len(environments) != 1):
@@ -62,7 +66,7 @@ def installation(config):
 
 
 def configure(args):
-    if not re.fullmatch(r'[a-z][a-z0-9-]{2,15}', args.name) or not re.fullmatch(r'[a-z]{2}-[a-z]+-[0-9]', args.region):
+    if not valid_installation_name(args.name) or not re.fullmatch(r'[a-z]{2}-[a-z]+-[0-9]', args.region):
         raise RuntimeError('Use a 3–16 character lowercase installation name and an AWS region.')
     output = args.config.resolve()
     if output.exists() and any(output.iterdir()):
@@ -126,10 +130,19 @@ def initialize(folder, stack, backend=None, installation_name=None):
     tf(folder, stack, arguments)
 
 
-def planned(folder, stack, variables, *, apply=False, destroy=False):
+def planned(folder, stack, variables, *, apply=False, destroy=False, expected=None):
     path = folder / 'plans' / f'{stack}{"-destroy" if destroy else ""}.tfplan'
     path.parent.mkdir(parents=True, exist_ok=True)
     tf(folder, stack, ['plan', '-input=false', '-lock-timeout=60s', *( ['-destroy'] if destroy else [] ), *variables, '-out=' + str(path)])
+    if expected is not None:
+        # Inspect in memory only: show -json may contain sensitive plan values.
+        # HCL is evaluated by Terraform; never guess effective values with regex.
+        plan = json.loads(tf(folder, stack, ['show', '-json', str(path)], capture=True).stdout)
+        common = plan.get('variables', {}).get('common', {}).get('value', {})
+        if any(common.get(key) != expected[key] for key in ['name', 'region']):
+            raise RuntimeError('Installation name/region changed in tfvars. This plan was not applied. Use a new configuration and reviewed migration for another installation identity.')
+        if stack in ['dev', 'prod', 'demo'] and plan.get('variables', {}).get('environment', {}).get('value', {}).get('name') != stack:
+            raise RuntimeError('Environment name differs from the selected state. This plan was not applied. Keep each environment in its own configuration and state.')
     if apply:
         # Always apply the exact saved file. Never generate a fresh implicit plan.
         tf(folder, stack, ['apply', '-input=false', str(path)])
@@ -247,9 +260,9 @@ def operate(args):
         if args.command == 'bootstrap': return
         initialize(folder,'shared',backend,settings['name'])
         if args.command == 'plan':
-            planned(folder,'shared',config_arguments(config))
+            planned(folder,'shared',config_arguments(config),expected=settings)
         elif args.command == 'deploy':
-            planned(folder,'shared',config_arguments(config),apply=True)
+            planned(folder,'shared',config_arguments(config),apply=True,expected=settings)
         platform = output(folder,'shared','platform')
         environments = selected(settings,args.environment)
         if args.command == 'deploy':
@@ -270,12 +283,12 @@ def operate(args):
             arguments = runtime_arguments(config,folder,environment,active=active)
             if args.command == 'destroy':
                 if args.confirm != settings['name']: raise RuntimeError('Teardown requires --confirm with the installation name.')
-                planned(folder,environment,arguments,apply=True,destroy=True); continue
-            planned(folder,environment,arguments,apply=args.command=='deploy')
+                planned(folder,environment,arguments,apply=True,destroy=True,expected=settings); continue
+            planned(folder,environment,arguments,apply=args.command=='deploy',expected=settings)
             if args.command == 'deploy':
                 info = output(folder,environment,'installation')
                 migrate(info,folder)
-                planned(folder,environment,runtime_arguments(config,folder,environment,active=True),apply=True)
+                planned(folder,environment,runtime_arguments(config,folder,environment,active=True),apply=True,expected=settings)
                 info = output(folder,environment,'installation')
                 # Preserve Terraform-owned config.json. No other object prefix is managed by this publisher.
                 run(['aws','s3','sync','apps/web/out/_next/static/',f's3://{info["bucket"]}/_next/static/','--region',info['region'],'--cache-control','public,max-age=31536000,immutable'])
@@ -289,7 +302,7 @@ def operate(args):
                 initialize(folder,environment,backend,settings['name'])
                 resources = tf(folder,environment,['state','list'],capture=True).stdout.strip()
                 if resources: raise RuntimeError('Shared resources are retained while any environment state still contains resources.')
-            planned(folder,'shared',config_arguments(config),apply=True,destroy=True)
+            planned(folder,'shared',config_arguments(config),apply=True,destroy=True,expected=settings)
         if args.command == 'destroy':
             print('The encrypted state backend is deliberately retained. Database/S3/ECR protections must be reviewed explicitly; no data purge is automatic.')
 
@@ -314,6 +327,8 @@ def use_backend(args):
 def check():
     folder = ROOT/'.forge/check'
     run(['terraform','fmt','-check','-recursive','modules','stacks','environments','examples'])
+    for template in [*ROOT.glob('environments/*.auto.tfvars.example'), *ROOT.glob('examples/demo/*.auto.tfvars.example')]:
+        run(['terraform','fmt','-check','-'], input=template.read_text(), capture=True)
     for stack in ['state','shared','environment']:
         tf(folder,stack,['init','-backend=false','-input=false'])
         tf(folder,stack,['validate'])

@@ -40,6 +40,7 @@ Catalog derived from Terraform source. It lists declarations; count, for_each, d
 | events | `aws_sqs_queue.requests` | [modules/events/main.tf](../modules/events/main.tf) |
 | events | `aws_sqs_queue_redrive_allow_policy.dlq` | [modules/events/main.tf](../modules/events/main.tf) |
 | events | `aws_sqs_queue_policy.requests` | [modules/events/main.tf](../modules/events/main.tf) |
+| events | `aws_sqs_queue_policy.dlq` | [modules/events/main.tf](../modules/events/main.tf) |
 | events | `aws_iam_role.worker` | [modules/events/main.tf](../modules/events/main.tf) |
 | events | `aws_cloudwatch_log_group.worker` | [modules/events/main.tf](../modules/events/main.tf) |
 | events | `aws_iam_role_policy.worker` | [modules/events/main.tf](../modules/events/main.tf) |

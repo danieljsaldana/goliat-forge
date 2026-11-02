@@ -8,6 +8,7 @@ state.dictionaries={es,en};state.product=product||{};
 const requested=new URLSearchParams(location.search).get('lang')||(location.pathname.includes('/en/')?'en':null);
 try{state.locale=requested||localStorage.getItem('forge:language')||'es';}catch{state.locale=requested||'es';}
 if(!['es','en'].includes(state.locale)||!state.dictionaries[state.locale])state.locale='es';
+let lab=null;
 const modules=[
  ['network','network','Red privada','Private network','Subredes de aplicación y datos, SG, flow logs y endpoints AWS.','Application and data subnets, security groups, flow logs and AWS endpoints.'],
  ['edge','globe','Entrada pública','Public entry','CloudFront, ALB interno, OAC y S3 privado para el frontend.','CloudFront, internal ALB, OAC and private frontend S3.'],
@@ -37,14 +38,39 @@ function applyLanguage(locale){
  document.querySelector('.languages').setAttribute('aria-label',locale==='es'?'Idioma':'Language');
  document.querySelector('.main-nav').setAttribute('aria-label',locale==='es'?'Navegación':'Navigation');
  for(const link of document.querySelectorAll('a[href^="docs/"]')){if(!link.pathname.includes('/modules/')){const url=new URL(link.href);if(locale==='en')url.searchParams.set('lang','en');else url.searchParams.delete('lang');link.href=url.pathname.split('/').slice(-2).join('/')+url.search;}}
- renderModules();renderStars();databaseExplorer.update(locale);diagram.update({locale});
+ renderModules();renderStars();databaseExplorer.update(locale);diagram.update({locale});lab?.update();
  $('open-diagram').href=`diagrams/${document.querySelector('[data-diagram][aria-pressed="true"]').dataset.diagram}.html?lang=${locale}`;
  try{localStorage.setItem('forge:language',locale);}catch{}
 }
 for(const button of document.querySelectorAll('[data-lang]'))button.addEventListener('click',()=>applyLanguage(button.dataset.lang));
 for(const button of document.querySelectorAll('[data-diagram]'))button.addEventListener('click',()=>{for(const other of document.querySelectorAll('[data-diagram]'))other.setAttribute('aria-pressed',String(other===button));diagram.update({view:button.dataset.diagram});$('open-diagram').href=`diagrams/${button.dataset.diagram}.html?lang=${state.locale}`;});
 for(const button of document.querySelectorAll('[data-environment]'))button.addEventListener('click',()=>{for(const other of document.querySelectorAll('[data-environment]'))other.setAttribute('aria-pressed',String(other===button));diagram.update({environment:button.dataset.environment});const scroll=document.querySelector('.diagram-scroll');scroll.scrollLeft=button.dataset.environment==='prod'?scroll.scrollWidth-scroll.clientWidth:0;});
-for(const button of document.querySelectorAll('[data-config]'))button.addEventListener('click',async()=>{const name=button.dataset.config;for(const other of document.querySelectorAll('[data-config]'))other.setAttribute('aria-pressed',String(other===button));$('config-caption').textContent=`environments/${name}.auto.tfvars.example`;try{const response=await fetch(new URL((location.pathname.includes('/site/')?'../environments/':'./content/')+name+'.auto.tfvars.example',import.meta.url),{signal:AbortSignal.timeout(4000)});if(response.ok)$('config-code').textContent=await response.text();}catch{}});
+let configRequest=null,loadedConfig='dev';
+const configCache=new Map([['dev',$('config-code').textContent]]);
+for(const button of document.querySelectorAll('[data-config]'))button.addEventListener('click',async()=>{
+ const name=button.dataset.config;configRequest?.abort();const request=new AbortController();configRequest=request;$('copy-config').disabled=true;
+ for(const other of document.querySelectorAll('[data-config]'))other.setAttribute('aria-pressed',String(other===button));
+ try{
+  let content=configCache.get(name);
+  if(!content){
+   $('config-status').textContent=state.locale==='es'?'Cargando ejemplo…':'Loading example…';
+   const folder=location.pathname.includes('/site/')?(name==='demo'?'../examples/demo/':'../environments/'):'./content/';
+   const response=await fetch(new URL(folder+name+'.auto.tfvars.example',import.meta.url),{signal:AbortSignal.any([request.signal,AbortSignal.timeout(5000)])});
+   if(!response.ok)throw Error('configuration_unavailable');content=await response.text();configCache.set(name,content);
+  }
+  if(request.signal.aborted)return;
+  $('config-code').textContent=content;$('config-caption').textContent=(name==='demo'?'examples/demo/':'environments/')+name+'.auto.tfvars.example';loadedConfig=name;$('config-status').textContent='';
+ }catch{
+  if(request.signal.aborted)return;
+  for(const other of document.querySelectorAll('[data-config]'))other.setAttribute('aria-pressed',String(other.dataset.config===loadedConfig));
+  $('config-status').textContent=state.locale==='es'?'No se pudo cargar el ejemplo. Se conserva el anterior.':'Could not load the example. The previous example is retained.';
+ }finally{if(!request.signal.aborted)$('copy-config').disabled=false;}
+});
+$('copy-config').addEventListener('click',async()=>{
+ try{await navigator.clipboard.writeText($('config-code').textContent);$('config-status').textContent=state.locale==='es'?'Configuración copiada.':'Configuration copied.';}
+ catch{const selection=getSelection(),range=document.createRange();range.selectNodeContents($('config-code'));selection.removeAllRanges();selection.addRange(range);$('config-status').textContent=state.locale==='es'?'Bloque seleccionado. Usa copiar en tu navegador.':'Block selected. Use your browser copy command.';}
+});
+
 if(state.product.version)for(const element of document.querySelectorAll('[data-version]'))element.textContent='v'+state.product.version;
 const repository=state.product.repository;
 const validRepository=typeof repository==='string'&&/^https:\/\/github\.com\/[\w-]+\/[\w.-]+\/?$/.test(repository);
@@ -53,7 +79,7 @@ let metadataStorage=null;try{metadataStorage=sessionStorage;}catch{}
 async function loadStars(){try{const snapshot=await getStarSnapshot(repository,{storage:metadataStorage,refresh:true,fallback:initialSnapshot});if(snapshot&&(!state.snapshot||Date.parse(snapshot.checkedAt)>=Date.parse(state.snapshot.checkedAt))){state.snapshot=snapshot;renderStars();}}finally{state.starFlight=null;}}
 function refreshStars(){if(!validRepository||document.visibilityState==='hidden')return;if(!state.starFlight)state.starFlight=loadStars();return state.starFlight;}
 window.addEventListener('focus',refreshStars);window.addEventListener('pageshow',refreshStars);document.addEventListener('visibilitychange',refreshStars);setInterval(refreshStars,60000);refreshStars();
-import('./lab.js').then(({createLab})=>createLab({locale:()=>state.locale})).catch(()=>{$('lab-status').textContent=state.locale==='es'?'No se pudo cargar el laboratorio. La arquitectura y las guías siguen disponibles.':'The lab could not load. Architecture and guides are still available.';});
-if(!matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelector('[data-flow-step="0"]')?.classList.add('active');setInterval(()=>{if(document.visibilityState==='hidden')return;state.flow=(state.flow+1)%6;for(const [index,item]of [...document.querySelectorAll('[data-flow-step]')].entries())item.classList.toggle('active',index===state.flow&&state.flow<4);},1500);}
+import('./lab.js').then(({createLab})=>{lab=createLab({locale:()=>state.locale});}).catch(()=>{$('lab-status').textContent=state.locale==='es'?'No se pudo cargar el laboratorio. La arquitectura y las guías siguen disponibles.':'The lab could not load. Architecture and guides are still available.';});
+if(!matchMedia('(prefers-reduced-motion: reduce)').matches){document.querySelector('[data-flow-step="0"]')?.classList.add('active');setInterval(()=>{if(document.visibilityState==='hidden')return;const steps=document.querySelector('[data-lab-mode="events"][aria-pressed="true"]')?4:3;state.flow=(state.flow+1)%(steps+2);for(const [index,item]of [...document.querySelectorAll('[data-flow-step]')].entries())item.classList.toggle('active',index===state.flow&&state.flow<steps);},1500);}
 applyLanguage(state.locale);
 document.querySelector('[data-config="dev"]')?.click();

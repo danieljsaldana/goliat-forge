@@ -1,15 +1,3 @@
-variable "name" {
-  type = string
-}
-
-variable "amount" {
-  type = number
-}
-
-variable "emails" {
-  type = list(string)
-}
-
 resource "aws_budgets_budget" "installation" {
   name         = "${var.name}-monthly"
   budget_type  = "COST"
@@ -30,8 +18,4 @@ resource "aws_budgets_budget" "installation" {
       subscriber_email_addresses = var.emails
     }
   }
-}
-
-output "budget_name" {
-  value = aws_budgets_budget.installation.name
 }

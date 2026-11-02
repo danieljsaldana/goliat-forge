@@ -8,8 +8,9 @@ module "waf" {
   providers = {
     aws = aws.edge
   }
-  name      = var.common.name
-  retention = var.common.log_retention_days
+  name       = var.common.name
+  retention  = var.common.log_retention_days
+  rate_limit = var.common.waf_rate_limit
 }
 
 module "observability" {

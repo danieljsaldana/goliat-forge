@@ -42,3 +42,14 @@ run "private_network" {
 
 
 }
+
+run "reject_vpc_larger_than_aws_limit" {
+  command = plan
+  variables { cidr = "10.0.0.0/8" }
+  expect_failures = [var.cidr]
+}
+run "reject_noncanonical_or_public_range" {
+  command = plan
+  variables { cidr = "203.0.0.0/16" }
+  expect_failures = [var.cidr]
+}

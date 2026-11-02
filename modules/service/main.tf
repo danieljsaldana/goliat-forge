@@ -1,83 +1,3 @@
-variable "database_driver" {
-  type    = string
-  default = "postgres"
-}
-variable "worker_role_arn" {
-  type    = string
-  default = ""
-}
-variable "name" {
-  type = string
-}
-
-variable "region" {
-  type = string
-}
-
-variable "image" {
-  type = string
-}
-
-variable "ecr_arn" {
-  type = string
-}
-
-variable "subnets" {
-  type = list(string)
-}
-
-variable "security_group" {
-  type = string
-}
-
-variable "target_group_arn" {
-  type = string
-}
-
-variable "environment" {
-  type = map(string)
-}
-
-variable "database_resource_ids" {
-  type = list(string)
-}
-
-variable "admin_secret_arn" {
-  type = string
-}
-
-variable "database_kms_arn" {
-  type = string
-}
-
-variable "queue_arn" {
-  type = string
-}
-
-variable "cpu" {
-  type = number
-}
-
-variable "memory" {
-  type = number
-}
-
-variable "replicas" {
-  type = number
-}
-
-variable "max_replicas" {
-  type = number
-}
-
-variable "active" {
-  type = bool
-}
-
-variable "retention" {
-  type = number
-}
-
 data "aws_caller_identity" "current" {
 }
 
@@ -86,7 +6,10 @@ locals {
     Version = "2012-10-17", Statement = [{
       Effect = "Allow", Principal = {
         Service = "ecs-tasks.amazonaws.com"
-      }, Action = "sts:AssumeRole"
+        }, Action = "sts:AssumeRole", Condition = {
+        StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
+        ArnLike      = { "aws:SourceArn" = "arn:aws:ecs:${var.region}:${data.aws_caller_identity.current.account_id}:*" }
+      }
       }
     ]
     }
@@ -242,6 +165,7 @@ resource "aws_ecs_service" "api" {
   cluster                           = aws_ecs_cluster.this.id
   task_definition                   = aws_ecs_task_definition.api.arn
   launch_type                       = "FARGATE"
+  platform_version                  = "1.4.0"
   desired_count                     = var.active ? var.replicas : 0
   enable_execute_command            = false
   health_check_grace_period_seconds = 60
@@ -279,23 +203,11 @@ resource "aws_appautoscaling_policy" "api" {
   scalable_dimension = aws_appautoscaling_target.api[0].scalable_dimension
   service_namespace  = aws_appautoscaling_target.api[0].service_namespace
   target_tracking_scaling_policy_configuration {
-    target_value = 60
+    target_value = var.autoscaling.target_cpu
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
-    scale_in_cooldown  = 120
-    scale_out_cooldown = 60
+    scale_in_cooldown  = var.autoscaling.scale_in_cooldown
+    scale_out_cooldown = var.autoscaling.scale_out_cooldown
   }
-}
-
-output "cluster" {
-  value = aws_ecs_cluster.this.name
-}
-
-output "service" {
-  value = aws_ecs_service.api.name
-}
-
-output "migration_task" {
-  value = aws_ecs_task_definition.migration.arn
 }

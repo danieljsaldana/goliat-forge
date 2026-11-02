@@ -38,7 +38,7 @@ def inline(text,source,current):
         if not parsed.scheme and not url.startswith('#'):
             path=(source.parent/parsed.path).resolve()
             if path.is_file() and ROOT in path.parents:
-                if path.suffix in ['.md','.tf','.tfvars','.example']:url=relative(target_for(path),current)+(('#'+parsed.fragment) if parsed.fragment else '')
+                if path.suffix in ['.md','.tf','.tfvars','.example']:url=relative(target_for(path),current)+(('#'+parsed.fragment) if parsed.fragment else ('#'+slug(path.name) if path.suffix=='.tf' and 'modules' in path.parts else ''))
         return reserve('<a href="'+escape(url,quote=True)+'">'+escape(label)+'</a>')
     text=re.sub(r'\[([^\]]+)\]\(([^)]+)\)',link,text)
     text=re.sub(r'`([^`]+)`',lambda m:reserve('<code>'+escape(m[1])+'</code>'),text)
@@ -115,6 +115,7 @@ def build():
     shutil.copyfile(ROOT/'apps/shared/domain.mjs',OUT/'domain.mjs')
     for name in ['common','dev','prod']:
         for suffix in ['tfvars','auto.tfvars.example']:shutil.copyfile(ROOT/f'environments/{name}.{suffix}',OUT/f'content/{name}.{suffix}')
+    shutil.copyfile(ROOT/'examples/demo/demo.auto.tfvars.example',OUT/'content/demo.auto.tfvars.example')
     product=json.loads((SITE/'content/product.json').read_text());product['version']=(ROOT/'VERSION').read_text().strip()
     original_repository=product.get('repository')
     repository=os.environ.get('GITHUB_REPOSITORY')
@@ -181,8 +182,8 @@ def build():
     for folder in sorted((ROOT/'modules').iterdir()):
         if not folder.is_dir():continue
         output=OUT/f'docs/modules/{folder.name}.html'
-        body=f'<h1>Module / Módulo: {folder.name}</h1><p>Terraform source · Código fuente. Inputs, resources and outputs / Entradas, recursos y salidas.</p>'
-        for source in sorted(folder.glob('*.tf')):body+=f'<h2 id="{slug(source.name)}">{escape(source.name)}</h2><pre><code>{escape(source.read_text())}</code></pre>'
+        body=markdown((folder/'README.md').read_text(),folder/'README.md',output)
+        for source in sorted(folder.glob('*.tf')):body+=f'<details class="source-block" id="{slug(source.name)}"><summary>{escape(source.name)}</summary><pre><code>{escape(source.read_text())}</code></pre></details>'
         document(folder.name,body,output)
     for folder in ['environments','examples/demo','examples/databases']:
         for source in sorted((ROOT/folder).glob('*')):

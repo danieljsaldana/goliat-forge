@@ -12,8 +12,10 @@ for(const view of ['overview','network']){
  await output('site/diagrams/'+view+'.html',html);
 }
 const escape=value=>value.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+const translations=JSON.parse(await readFile(new URL('site/content/es.json',root),'utf8'));
 const config=await readFile(new URL('environments/dev.auto.tfvars.example',root),'utf8');
 let index=await readFile(new URL('site/index.html',root),'utf8');
+index=index.replace(/<([\w-]+)([^>]*data-i18n="([^"]+)"[^>]*)>[\s\S]*?<\/\1>/g,(_match,tag,attrs,key)=>'<'+tag+attrs+'>'+escape(translations[key])+'</'+tag+'>');
 index=index.replace(/<code id="config-code">[\s\S]*?<\/code>/,'<code id="config-code">'+escape(config)+'</code>');
 await output('site/index.html',index);
 await output('site/index.htm',index);

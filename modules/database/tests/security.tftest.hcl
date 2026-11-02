@@ -121,3 +121,30 @@ run "reject_cluster_multi_az_same_zone" {
   }
   expect_failures = [var.read_replicas]
 }
+
+run "reject_reader_collision_with_writer" {
+  command = plan
+  variables {
+    kind           = "aurora-postgresql"
+    engine_version = null
+    read_replicas  = { primary = {} }
+  }
+  expect_failures = [var.read_replicas]
+}
+run "explicit_storage_ceiling_and_snapshot_name" {
+  command = apply
+  variables {
+    max_storage_gb            = 100
+    final_snapshot_identifier = "forge-dev-reviewed-final"
+  }
+  assert {
+    condition     = aws_db_instance.this[0].max_allocated_storage == 100 && aws_db_instance.this[0].final_snapshot_identifier == "forge-dev-reviewed-final"
+    error_message = "Storage limits and a unique final snapshot name must be configurable without editing module resources."
+  }
+}
+
+run "reject_insufficient_autoscaling_headroom" {
+  command = plan
+  variables { max_storage_gb = 21 }
+  expect_failures = [var.max_storage_gb]
+}

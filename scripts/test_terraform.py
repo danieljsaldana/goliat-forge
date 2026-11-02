@@ -2,7 +2,7 @@
 from pathlib import Path
 import os,subprocess,zipfile
 ROOT=Path(__file__).resolve().parents[1]
-TARGETS=['stacks/environment','modules/network','modules/database','modules/edge']
+TARGETS=['stacks/environment','modules/network','modules/database','modules/edge','modules/events','modules/service','modules/identity']
 
 def main():
     fixture=ROOT/'.forge/test-fixtures/worker.zip';fixture.parent.mkdir(parents=True,exist_ok=True)

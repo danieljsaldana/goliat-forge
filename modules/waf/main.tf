@@ -1,11 +1,3 @@
-variable "name" {
-  type = string
-}
-
-variable "retention" {
-  type = number
-}
-
 resource "aws_wafv2_web_acl" "shared" {
   name        = "${var.name}-edge"
   description = "Shared edge rules for isolated environments"
@@ -47,8 +39,9 @@ resource "aws_wafv2_web_acl" "shared" {
     }
     statement {
       rate_based_statement {
-        limit              = 1000
-        aggregate_key_type = "IP"
+        limit                 = var.rate_limit
+        evaluation_window_sec = 300
+        aggregate_key_type    = "IP"
       }
     }
     visibility_config {
@@ -86,8 +79,4 @@ resource "aws_wafv2_web_acl_logging_configuration" "shared" {
     query_string {
     }
   }
-}
-
-output "arn" {
-  value = aws_wafv2_web_acl.shared.arn
 }

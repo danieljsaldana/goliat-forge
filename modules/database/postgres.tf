@@ -15,7 +15,7 @@ resource "aws_db_instance" "this" {
   engine_version                      = local.postgres_version
   instance_class                      = local.instance_class
   allocated_storage                   = var.storage_gb
-  max_allocated_storage               = var.storage_gb * 3
+  max_allocated_storage               = local.max_storage_gb
   storage_type                        = "gp3"
   storage_encrypted                   = true
   kms_key_id                          = aws_kms_key.data.arn
@@ -34,7 +34,7 @@ resource "aws_db_instance" "this" {
   maintenance_window                  = "sun:03:00-sun:04:00"
   deletion_protection                 = var.protect
   skip_final_snapshot                 = var.skip_final_snapshot
-  final_snapshot_identifier           = "${var.name}-final"
+  final_snapshot_identifier           = local.final_snapshot_identifier
   auto_minor_version_upgrade          = true
   copy_tags_to_snapshot               = true
   enabled_cloudwatch_logs_exports     = ["postgresql", "upgrade"]

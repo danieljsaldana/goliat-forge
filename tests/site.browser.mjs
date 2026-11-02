@@ -60,7 +60,7 @@ for(const width of [320,390,768,1440])test('product website: ES/EN, diagrams and
 test('optional SQS browser lab: queue outage, recovery and duplicate delivery',async()=>{
  const page=await testPage();const failures=errors(page);
  try{
-  await page.goto(website+'/',{waitUntil:'networkidle'});await page.locator('#queue-online').uncheck();await page.locator('#lab-form button').click();
+  await page.goto(website+'/',{waitUntil:'networkidle'});await page.locator('[data-lab-mode="events"]').click();await page.locator('#queue-online').uncheck();await page.locator('#lab-form button').click();
   await expect(page.locator('#lab-request-count')).toHaveText('1');await expect(page.locator('#lab-activity-count')).toHaveText('0');
   await page.locator('#queue-online').check();await page.locator('#lab-recover').click();await expect(page.locator('#lab-activity-count')).toHaveText('1');
   await page.locator('#lab-replay').click();await page.locator('#lab-replay').click();await expect(page.locator('#lab-request-count')).toHaveText('1');await expect(page.locator('#lab-activity-count')).toHaveText('1');assert.deepEqual(failures,[]);
@@ -139,4 +139,45 @@ test('GitHub badge refreshes an old cached zero and advertises a real repository
   await page.goto(website+'/',{waitUntil:'networkidle'});await expect(page.locator('[data-github-count]')).toHaveText('1');await expect(page.locator('[data-repository]').first()).toHaveAttribute('href','https://github.com/danieljsaldana/goliat-forge');
   count=2;await page.evaluate(()=>window.dispatchEvent(new Event('focus')));await expect(page.locator('[data-github-count]')).toHaveText('2');assert.deepEqual(failures,[]);
  }finally{await context.close();}
+});
+
+test('base demo: owner isolation, operator view, mode reset and translated feedback',async()=>{
+ const page=await testPage();const failures=errors(page);
+ try{
+  await page.goto(website+'/',{waitUntil:'networkidle'});
+  await expect(page.locator('[data-lab-mode="basic"]')).toHaveAttribute('aria-pressed','true');
+  await expect(page.locator('#lab-event-controls')).toBeHidden();
+  await page.locator('#lab-title').fill('Equipo A');await page.locator('#lab-form button').click();await expect(page.locator('#lab-request-count')).toHaveText('1');
+  await page.locator('[data-lab-person="other"]').click();await expect(page.locator('#lab-request-count')).toHaveText('0');await expect(page.locator('#lab-requests')).not.toContainText('Equipo A');
+  await page.locator('#lab-title').fill('Equipo B');await page.locator('#lab-form button').click();await expect(page.locator('#lab-request-count')).toHaveText('1');
+  await page.locator('[data-lab-person="operator"]').click();await expect(page.locator('#lab-request-count')).toHaveText('2');await expect(page.locator('#lab-owner-form')).toBeHidden();
+  await page.locator('[data-lang="en"]').click();await expect(page.locator('#lab-view-label')).toHaveText('Team requests');await expect(page.locator('#lab-status')).toContainText('Request saved');
+  await page.locator('[data-lab-mode="events"]').click();await expect(page.locator('#lab-request-count')).toHaveText('0');
+  await page.locator('#lab-failure').click();await expect(page.locator('#lab-pending-count')).toHaveText('1');await expect(page.locator('#lab-replay')).toBeDisabled();
+  await page.locator('#queue-online').check();await page.locator('#lab-recover').click();await expect(page.locator('#lab-pending-count')).toHaveText('0');await expect(page.locator('#lab-activity-count')).toHaveText('1');
+  await page.locator('#lab-reset').click();await expect(page.locator('#lab-request-count')).toHaveText('0');assert.deepEqual(failures,[]);
+ }finally{await page.close();}
+});
+
+test('data capacity controls keep Multi-AZ compute and sample reader maps consistent',async()=>{
+ const page=await testPage();
+ try{
+  await page.goto(website+'/',{waitUntil:'networkidle'});await expect(page.locator('#database-readers')).toBeDisabled();
+  await page.locator('#database-ha').check();await expect(page.locator('#database-topology')).toContainText('Standby');await expect(page.locator('#database-code')).toContainText('db_read_replicas = {}');
+  await page.locator('[data-database="aurora-postgresql"]').click();await expect(page.locator('#database-readers')).toHaveValue('1');
+  await page.locator('#database-readers').selectOption('3');await expect(page.locator('#database-code')).toContainText('reader-3');
+  await page.locator('#database-readers').selectOption('0');await expect(page.locator('#database-ha')).not.toBeChecked();await expect(page.locator('#database-code')).toContainText('db_read_replicas = {}');
+ }finally{await page.close();}
+});
+
+test('configuration switch ignores stale responses and includes the full AWS demo',async()=>{
+ const page=await testPage();let release;
+ try{
+  await page.goto(website+'/',{waitUntil:'networkidle'});
+  const gate=new Promise(resolve=>{release=resolve;});
+  await page.route('**/content/prod.auto.tfvars.example',async route=>{await gate;await route.continue().catch(()=>{});});
+  await page.locator('[data-config="prod"]').click();await page.locator('[data-config="demo"]').click();
+  await expect(page.locator('#config-caption')).toHaveText('examples/demo/demo.auto.tfvars.example');await expect(page.locator('#config-code')).toContainText('name');await expect(page.locator('#config-code')).toContainText('worker_timeout');
+  release();await expect(page.locator('#config-caption')).toHaveText('examples/demo/demo.auto.tfvars.example');await expect(page.locator('#copy-config')).toBeEnabled();
+ }finally{release?.();await page.close();}
 });
