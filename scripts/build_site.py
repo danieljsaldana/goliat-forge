@@ -13,6 +13,10 @@ ROOT=Path(__file__).resolve().parents[1]
 OUT=ROOT/'dist'
 SITE=ROOT/'site'
 
+def is_github_pages_url(value):
+    parsed=urlsplit(value or '')
+    return parsed.scheme=='https' and bool(re.fullmatch(r'[a-zA-Z0-9-]+\.github\.io',parsed.hostname or '')) and parsed.username is None and parsed.password is None
+
 def slug(value):
     value=unicodedata.normalize('NFKD',re.sub(r'[`*]','',value))
     return re.sub(r'[^a-z0-9]+','-',value.encode('ascii','ignore').decode().lower()).strip('-')
@@ -117,7 +121,7 @@ def build():
     if repository and re.fullmatch(r'[\w-]+/[\w.-]+',repository):
         product['repository']='https://github.com/'+repository
         derived_url='https://'+repository.split('/')[0]+'.github.io/'+repository.split('/')[1]+'/'
-        if not product.get('site_url') or (product['repository']!=original_repository and '.github.io/' in product['site_url']):product['site_url']=derived_url
+        if not product.get('site_url') or (product['repository']!=original_repository and is_github_pages_url(product['site_url'])):product['site_url']=derived_url
     product['site_url']=os.environ.get('GOLIAT_SITE_URL') or product.get('site_url')
     (OUT/'content/product.json').write_text(json.dumps(product,ensure_ascii=False,indent=2)+'\n')
     snapshot=json.loads((SITE/'content/github-stars.json').read_text())
