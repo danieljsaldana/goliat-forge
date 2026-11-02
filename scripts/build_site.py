@@ -156,7 +156,7 @@ def build():
         page=translate_html(html,language)
         title='Goliat Forge · Modular AWS architecture' if language=='en' else 'Goliat Forge · Arquitectura modular para AWS'
         page=re.sub(r'<title>.*?</title>','<title>'+title+'</title>',page)
-        description=('A modular AWS reference architecture with Terraform, shared platform services, isolated Dev and Prod, private workloads and configurable data engines.' if language=='en' else 'Arquitectura AWS modular con Terraform, plataforma compartida, Dev y Prod aislados, cargas privadas y motores de datos configurables.')
+        description=('A modular AWS reference architecture with Terraform, shared platform services, isolated Dev and Prod, private workloads and configurable data engines.' if language=='en' else 'Arquitectura modular para AWS con Terraform: servicios compartidos, Dev y Prod aislados, API privada y bases de datos configurables.')
         def meta(key,value):
             nonlocal page
             pattern=r'(<meta (?:name|property)="'+re.escape(key)+r'" content=")[^"]*(")'
@@ -165,7 +165,7 @@ def build():
         for key in ['description','og:description','twitter:description']:meta(key,description)
         meta('og:locale','en_US' if language=='en' else 'es_ES')
         meta('og:locale:alternate','es_ES' if language=='en' else 'en_US')
-        image_alt='Goliat Forge: shared AWS foundation and isolated Dev and Prod architectures' if language=='en' else 'Goliat Forge: plataforma AWS compartida y arquitecturas Dev y Prod aisladas'
+        image_alt='Goliat Forge: shared AWS foundation and isolated Dev and Prod architectures' if language=='en' else 'Diagrama de Goliat Forge: plataforma AWS compartida y entornos Dev y Prod aislados con API y datos privados.'
         for key in ['og:image:alt','twitter:image:alt']:meta(key,image_alt)
         if product['site_url']:
             canonical=product['site_url'].rstrip('/')+('/en/' if language=='en' else '/')
