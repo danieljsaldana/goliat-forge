@@ -2,6 +2,8 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
+data "aws_caller_identity" "current" {}
+
 data "aws_ec2_managed_prefix_list" "cloudfront" {
   name = "com.amazonaws.global.cloudfront.origin-facing"
 }
@@ -255,7 +257,10 @@ resource "aws_iam_role" "flow" {
     Version = "2012-10-17", Statement = [{
       Effect = "Allow", Principal = {
         Service = "vpc-flow-logs.amazonaws.com"
-      }, Action = "sts:AssumeRole"
+        }, Action = "sts:AssumeRole", Condition = {
+        StringEquals = { "aws:SourceAccount" = data.aws_caller_identity.current.account_id }
+        ArnLike      = { "aws:SourceArn" = "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:vpc-flow-log/*" }
+      }
       }
     ]
     }
@@ -265,8 +270,15 @@ resource "aws_iam_role" "flow" {
 resource "aws_iam_role_policy" "flow" {
   role = aws_iam_role.flow.id
   policy = jsonencode({
-    Version = "2012-10-17", Statement = [{
-      Effect = "Allow", Action = ["logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogGroups", "logs:DescribeLogStreams"], Resource = [aws_cloudwatch_log_group.flow.arn, "${aws_cloudwatch_log_group.flow.arn}:*"]
+    Version = "2012-10-17", Statement = [
+      {
+        Effect = "Allow", Action = ["logs:CreateLogGroup", "logs:CreateLogStream", "logs:PutLogEvents", "logs:DescribeLogStreams"], Resource = [aws_cloudwatch_log_group.flow.arn, "${aws_cloudwatch_log_group.flow.arn}:*"]
+      },
+      {
+        # This list action does not support log-group resource ARNs.
+        Effect = "Allow", Action = "logs:DescribeLogGroups", Resource = "*", Condition = {
+          StringEquals = { "aws:RequestedRegion" = var.region }
+        }
       }
     ]
     }
@@ -278,4 +290,5 @@ resource "aws_flow_log" "this" {
   traffic_type    = "ALL"
   iam_role_arn    = aws_iam_role.flow.arn
   log_destination = aws_cloudwatch_log_group.flow.arn
+  depends_on      = [aws_iam_role_policy.flow]
 }

@@ -2,6 +2,7 @@
 check:
 	./forge check
 	python3 scripts/check_publication.py
+	python3 scripts/check_wiki.py
 
 test:
 	npm test

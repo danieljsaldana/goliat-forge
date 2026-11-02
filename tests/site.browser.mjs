@@ -181,3 +181,36 @@ test('configuration switch ignores stale responses and includes the full AWS dem
   release();await expect(page.locator('#config-caption')).toHaveText('examples/demo/demo.auto.tfvars.example');await expect(page.locator('#copy-config')).toBeEnabled();
  }finally{release?.();await page.close();}
 });
+
+test('architecture hero: Nexus-style views, component selection and detailed diagram stay synchronized',async()=>{
+ const page=await testPage({reducedMotion:'reduce'}),failures=errors(page);
+ try{
+  await page.goto(website+'/',{waitUntil:'networkidle'});
+  await expect(page.locator('.hero')).not.toContainText('Luma');
+  await expect(page.locator('#hero-architecture')).toHaveAttribute('data-view','shared');
+  await page.locator('[data-hero-view="entry"]').click();await expect(page.locator('#hero-trace')).toContainText('CloudFront + WAF');
+  await page.locator('[data-hero-view="events"]').click();await expect(page.locator('#hero-detail-copy')).toContainText('desactivado por defecto');
+  await expect(page.locator('#hero-trace')).toContainText('API + outbox');
+  await page.locator('[data-hero-node="registry"]').focus();await page.keyboard.press('Enter');await expect(page.locator('#hero-detail-title')).toHaveText('ECR compartido');
+  await page.locator('[data-hero-node="prod-api"]').click();await expect(page.locator('#hero-detail-scope')).toContainText('PROD');
+  await page.locator('#hero-detail-link').click();await expect(page.locator('[data-environment="prod"]')).toHaveAttribute('aria-pressed','true');await expect(page.locator('#node-title')).toHaveText('ECS Fargate');
+  await page.locator('[data-lang="en"]').click();await expect(page.locator('#hero-detail-title')).toHaveText('Private compute');
+  await page.locator('[data-hero-view="events"]').click();await expect(page.locator('#hero-detail-copy')).toContainText('Disabled by default');
+  await expect(page.locator('#hero-architecture')).not.toHaveClass(/is-tracing/);
+  const order=await page.locator('main>section').evaluateAll(nodes=>nodes.map(node=>node.id));assert.ok(order.indexOf('architecture')<order.indexOf('databases'));assert.ok(order.indexOf('modules')<order.indexOf('reference'));
+  assert.deepEqual(failures,[]);
+ }finally{await page.close();}
+});
+
+test('architecture hero replay idles between cycles, stops outside the viewport and respects reduced motion',async()=>{
+ const page=await testPage({viewport:{width:1440,height:1100},reducedMotion:'no-preference'});
+ try{
+  await page.goto(website+'/',{waitUntil:'networkidle'});
+  const hero=page.locator('#hero-architecture');
+  await expect(hero).toHaveClass(/is-tracing/);
+  await expect(hero).not.toHaveClass(/is-tracing/,{timeout:4500});
+  await expect(hero).toHaveClass(/is-tracing/,{timeout:4000});
+  await page.locator('#start').scrollIntoViewIfNeeded();await expect(hero).not.toHaveClass(/is-tracing/);
+  await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>scrollTo(0,0));await expect(hero).not.toHaveClass(/is-tracing/);
+ }finally{await page.close();}
+});

@@ -8,7 +8,7 @@ Esta instalación no es gratuita ni escala completamente a cero. No hay una esti
 
 ## Base encendida
 
-Por entorno se factura ALB, RDS con su almacenamiento/backups, tareas Fargate y endpoints de interfaz. Dev usa seis interfaces en una AZ y Prod seis en dos AZ: el número de endpoints y sus horas importa aunque no haya peticiones. S3 gateway no es un endpoint de interfaz. KMS, WAF, CloudFront, logs y transferencias tienen sus propios conceptos. No se añade NAT por defecto; activarla introduce otra base horaria y procesamiento de datos.
+Por entorno se factura ALB, RDS con su almacenamiento/backups, tareas Fargate y endpoints de interfaz. Por defecto hay cinco endpoints de interfaz: Dev los sitúa en una AZ y Prod en dos AZ. Activar eventos añade el sexto, para SQS. Las horas de cada endpoint por AZ importan aunque no haya peticiones. S3 gateway no es un endpoint de interfaz. KMS, WAF, CloudFront, logs y transferencias tienen sus propios conceptos. No se añade NAT por defecto; activarla introduce otra base horaria y procesamiento de datos.
 
 ## Lo que se comparte
 

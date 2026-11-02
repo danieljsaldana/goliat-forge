@@ -40,6 +40,34 @@ run "private_network" {
 
   }
 
+  assert {
+    condition = try(
+      jsondecode(aws_iam_role.flow.assume_role_policy).Statement[0].Condition.StringEquals["aws:SourceAccount"] == data.aws_caller_identity.current.account_id &&
+      jsondecode(aws_iam_role.flow.assume_role_policy).Statement[0].Condition.ArnLike["aws:SourceArn"] == "arn:aws:ec2:${var.region}:${data.aws_caller_identity.current.account_id}:vpc-flow-log/*",
+      false
+    )
+    error_message = "Flow-log role assumption must be restricted to this account and regional flow logs."
+  }
+
+  assert {
+    condition = anytrue([for statement in jsondecode(aws_iam_role_policy.flow.policy).Statement : try(
+      statement.Action == "logs:DescribeLogGroups" && statement.Resource == "*" && statement.Condition.StringEquals["aws:RequestedRegion"] == var.region,
+      false
+    )])
+    error_message = "DescribeLogGroups needs a separate wildcard-resource statement restricted to the workload region."
+  }
+
+  assert {
+    condition = alltrue([for statement in jsondecode(aws_iam_role_policy.flow.policy).Statement :
+      try(statement.Action == "logs:DescribeLogGroups", false) || try(
+        contains(statement.Action, "logs:CreateLogGroup") && contains(statement.Action, "logs:CreateLogStream") && contains(statement.Action, "logs:PutLogEvents") &&
+        alltrue([for resource in statement.Resource : startswith(resource, aws_cloudwatch_log_group.flow.arn)]),
+        false
+      )
+    ])
+    error_message = "Flow-log creation and writes must remain scoped to the environment log group."
+  }
+
 
 }
 

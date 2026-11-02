@@ -35,3 +35,11 @@ Types, defaults and validation rules: [variables.tf](variables.tf). Tipos, valor
 - `availability_zones`: Two workload availability zones used for stable reader placement.
 
 [Output expressions / Expresiones de salida](outputs.tf) · [Product configuration / Configuración del producto](../../docs/configuration.md)
+
+## Flow-log delivery / Entrega de logs de red
+
+The delivery role is limited to flow logs in this account and region. Log creation/writes are scoped to the environment log group. `DescribeLogGroups` uses a separate wildcard-resource statement restricted to the workload region, because this list action does not support resource-level permissions. Delivery waits for the role policy to be attached.
+
+El rol solo admite los flow logs de esta cuenta y región. La creación y escritura se restringen al grupo del entorno. `DescribeLogGroups` utiliza una declaración separada con recurso comodín y región limitada, porque esta operación no admite permisos por recurso. La entrega espera a que la política esté asignada al rol.
+
+[AWS flow-log IAM role](https://docs.aws.amazon.com/vpc/latest/userguide/flow-logs-iam-role.html) · [CloudWatch Logs permissions](https://docs.aws.amazon.com/service-authorization/latest/reference/list_logs.html)

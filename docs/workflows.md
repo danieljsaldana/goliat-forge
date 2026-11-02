@@ -14,9 +14,11 @@
 
 Actions está fijado por SHA, los runners usan ubuntu-24.04 y los checkouts no conservan credenciales. Las PR no reciben claves AWS. La integración SQL usa una base desechable con credenciales de prueba; nunca consulta la cuenta AWS.
 
+Validate product ejecuta la suite en Node 24 y 26. En Node 26 también construye la imagen Alpine de producción y prueba API, identidad y adaptadores dentro del contenedor, sin acceso de red externo ni credenciales AWS.
+
 ## Configurar el repositorio
 
-En tu fork, activa Pages con GitHub Actions, alertas de Dependabot, detección de secretos y protección de main. Requiere Validate product / checks y revisión antes del merge; bloquea pushes forzados y borrados. Activa Discussions si quieres separar preguntas de incidencias. El sitio deriva el enlace real a GitHub y su URL de Pages durante el build. No se inventan repositorios ni estrellas en local.
+En tu fork, activa Pages con GitHub Actions, alertas de Dependabot, detección de secretos y protección de main. Requiere los checks `checks (24)` y `checks (26)` de Validate product y revisión antes del merge; bloquea pushes forzados y borrados. Activa Discussions si quieres separar preguntas de incidencias. El sitio deriva el enlace real a GitHub y su URL de Pages durante el build. No se inventan repositorios ni estrellas en local.
 
 La primera ejecución de estrellas crea una rama de datos con un único stars.json. El cliente consulta ese JSON público al volver a la pestaña y cada minuto; una instantánea caducada no se presenta como reciente. El cron no garantiza actualización inmediata y GitHub puede pausar schedules de repositorios inactivos.
 

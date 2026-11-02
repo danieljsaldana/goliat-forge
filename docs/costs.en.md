@@ -8,7 +8,7 @@ This installation is not free and does not fully scale to zero. Region, availabi
 
 ## Always-on capacity
 
-Each environment incurs ALB, RDS storage/backups, running Fargate tasks and interface-endpoint charges. Dev uses six interfaces in one AZ; Prod uses six across two AZs. Endpoint-hours matter even without application requests. The S3 gateway endpoint is different. KMS, WAF, CloudFront, logs and transfers have their own charges. NAT is disabled by default; enabling it adds hourly and data-processing costs.
+Each environment incurs ALB, RDS storage/backups, running Fargate tasks and interface-endpoint charges. There are five interface endpoints by default: Dev places them in one AZ and Prod in two AZs. Enabling events adds a sixth for SQS. Endpoint-hours per AZ matter even without application requests. The S3 gateway endpoint is different. KMS, WAF, CloudFront, logs and transfers have their own charges. NAT is disabled by default; enabling it adds hourly and data-processing costs.
 
 ## Shared scope
 

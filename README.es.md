@@ -2,7 +2,7 @@
 
 [English](README.md) · **Español**
 
-**Una plataforma modular de aplicaciones para AWS.** Comparte la fundación, aísla Dev y Prod y entiende la arquitectura mediante una aplicación que funciona.
+**Una arquitectura AWS modular construida con Terraform.** Comparte servicios de plataforma, aísla Dev y Prod y adapta red, seguridad, cómputo y datos a tu proyecto. Luma es la aplicación incluida para probar la arquitectura.
 
 Forge reúne módulos Terraform reutilizables, configuración comentada, CLI de despliegue, web bilingüe y **Luma**: frontend Next.js estático, API Node.js privada, persistencia PostgreSQL/MySQL/DocumentDB seleccionable y SQS/Lambda opcionales.
 
@@ -109,7 +109,7 @@ python3 scripts/check_publication.py
 
 Las pruebas Terraform usan proveedores simulados y no crean recursos AWS. CI prueba PostgreSQL 17, MySQL 8.4 y un replica set MongoDB autenticado en contenedores desechables. Las pruebas de navegador comprueban el export Next.js real y la demo interactiva del producto. El [catálogo de recursos](docs/resources.md) refleja declaraciones de código, no una cuenta desplegada.
 
-[Aplicación de referencia](docs/reference.md) · [GitHub y CI](docs/workflows.md) · [Costes](docs/costs.md) · [Recuperación y destrucción](docs/operations.md) · [Contribuir](CONTRIBUTING.es.md)
+[Aplicación de referencia](docs/reference.md) · [Wiki](https://github.com/danieljsaldana/goliat-forge/wiki) · [GitHub y CI](docs/workflows.md) · [Costes](docs/costs.md) · [Recuperación y destrucción](docs/operations.md) · [Contribuir](CONTRIBUTING.es.md)
 
 RDS, ALB, endpoints y tareas generan coste aunque no haya tráfico. El presupuesto avisa, no limita el gasto. El teardown conserva datos/estado protegidos y no purga automáticamente contenido.
 

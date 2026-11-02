@@ -1,5 +1,6 @@
 /** One SVG renderer supplies the live diagram and readable, committed fallbacks. */
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
 import {renderDiagramSvg} from '../site/diagram.js';
 const root=new URL('../',import.meta.url),check=process.argv.includes('--check');
 async function output(path,content){const url=new URL(path,root);if(check){if(await readFile(url,'utf8')!==content)throw Error('Outdated generated diagram: '+path);}else await writeFile(url,content);}
@@ -15,6 +16,10 @@ const escape=value=>value.replaceAll('&','&amp;').replaceAll('<','&lt;').replace
 const translations=JSON.parse(await readFile(new URL('site/content/es.json',root),'utf8'));
 const config=await readFile(new URL('environments/dev.auto.tfvars.example',root),'utf8');
 let index=await readFile(new URL('site/index.html',root),'utf8');
+const product=JSON.parse(await readFile(new URL('site/content/product.json',root),'utf8'));
+const imageVersion=createHash('sha256').update(await readFile(new URL('site/assets/social-card.png',root))).digest('hex').slice(0,12);
+const shareImage=product.site_url.replace(/\/$/,'')+'/assets/social-card.png?v='+imageVersion;
+index=index.replace(/(<meta (?:property|name)="(?:og:image(?::secure_url)?|twitter:image)" content=")[^"]*(")/g,(_match,start,end)=>start+escape(shareImage)+end);
 index=index.replace(/<([\w-]+)([^>]*data-i18n="([^"]+)"[^>]*)>[\s\S]*?<\/\1>/g,(_match,tag,attrs,key)=>'<'+tag+attrs+'>'+escape(translations[key])+'</'+tag+'>');
 index=index.replace(/<code id="config-code">[\s\S]*?<\/code>/,'<code id="config-code">'+escape(config)+'</code>');
 await output('site/index.html',index);

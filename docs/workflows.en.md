@@ -14,9 +14,11 @@
 
 Actions are pinned by SHA, runners use ubuntu-24.04 and checkouts do not persist credentials. PRs receive no AWS keys. SQL integration uses a disposable database and test credentials, never the AWS account.
 
+Validate product runs the suite on Node 24 and 26. The Node 26 job also builds the production Alpine image and tests the API, identity and adapters inside the container, without external network access or AWS credentials.
+
 ## Repository settings
 
-In your fork, enable GitHub Pages with Actions, Dependabot alerts, secret scanning and main protection. Require Validate product / checks and review before merge; block force pushes and deletion. Enable Discussions for questions if useful. Site builds derive the actual GitHub and Pages URLs from the repository. Local builds invent neither a repository nor a star count.
+In your fork, enable GitHub Pages with Actions, Dependabot alerts, secret scanning and main protection. Require the Validate product checks `checks (24)` and `checks (26)` and review before merge; block force pushes and deletion. Enable Discussions for questions if useful. Site builds derive the actual GitHub and Pages URLs from the repository. Local builds invent neither a repository nor a star count.
 
 The first stars refresh creates a data branch containing only stars.json. Visible clients read this public snapshot on tab return and every minute. Stale snapshots are not presented as current. The schedule does not promise immediate refresh and GitHub can disable schedules on inactive repositories.
 

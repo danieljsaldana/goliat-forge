@@ -1,3 +1,4 @@
+import {createHeroArchitecture} from './hero-architecture.js';
 import {createDiagram} from './diagram.js';
 import {createDatabaseExplorer} from './databases.js';
 import {getStarSnapshot,formatStarCount} from './github.js';
@@ -30,6 +31,14 @@ function renderStars(){
  for(const badge of document.querySelectorAll('[data-github-stars]')){badge.hidden=false;badge.querySelector('[data-github-count]').textContent=formatStarCount(state.snapshot.count,state.locale);const checked=new Intl.DateTimeFormat(state.locale,{dateStyle:'medium',timeStyle:'short'}).format(new Date(state.snapshot.checkedAt));badge.title=(state.locale==='es'?'Comprobado: ':'Checked: ')+checked;badge.closest('a').setAttribute('aria-label',`GitHub · ${state.snapshot.count} ${state.locale==='es'?'estrellas':'stars'}`);}
 }
 const diagram=createDiagram({container:$('architecture-map'),locale:state.locale,onSelect:node=>{$('node-kind').textContent=node.env?node.env.toUpperCase():(state.locale==='es'?'Compartido':'Shared');$('node-title').textContent=node.title;$('node-description').textContent=node.description;$('node-access').textContent=node.access;$('node-module').textContent='modules/'+node.module;$('node-source').href='docs/modules/'+node.module+'.html';}});
+const heroArchitecture=createHeroArchitecture({locale:state.locale,onExplore:selected=>{
+ for(const button of document.querySelectorAll('[data-diagram]'))button.setAttribute('aria-pressed',String(button.dataset.diagram==='overview'));
+ const environment=/^(dev|prod)-/.exec(selected)?.[1]||'all';
+ for(const button of document.querySelectorAll('[data-environment]'))button.setAttribute('aria-pressed',String(button.dataset.environment===environment));
+ diagram.update({selected,view:'overview',environment});
+ $('open-diagram').href='diagrams/overview.html?lang='+state.locale;
+ const scroll=document.querySelector('.diagram-scroll');scroll.scrollLeft=environment==='prod'?scroll.scrollWidth-scroll.clientWidth:0;
+}});
 const databaseExplorer=createDatabaseExplorer();
 function applyLanguage(locale){
  if(!['es','en'].includes(locale)||!state.dictionaries[locale])return;state.locale=locale;document.documentElement.lang=locale;
@@ -37,8 +46,10 @@ function applyLanguage(locale){
  for(const button of document.querySelectorAll('[data-lang]'))button.setAttribute('aria-pressed',String(button.dataset.lang===locale));
  document.querySelector('.languages').setAttribute('aria-label',locale==='es'?'Idioma':'Language');
  document.querySelector('.main-nav').setAttribute('aria-label',locale==='es'?'Navegación':'Navigation');
+ $('copy-config').setAttribute('aria-label',state.dictionaries[locale]['start.copy']);
+ document.querySelector('.config-tabs').setAttribute('aria-label',locale==='es'?'Configuración':'Configuration');
  for(const link of document.querySelectorAll('a[href^="docs/"]')){if(!link.pathname.includes('/modules/')){const url=new URL(link.href);if(locale==='en')url.searchParams.set('lang','en');else url.searchParams.delete('lang');link.href=url.pathname.split('/').slice(-2).join('/')+url.search;}}
- renderModules();renderStars();databaseExplorer.update(locale);diagram.update({locale});lab?.update();
+ renderModules();renderStars();databaseExplorer.update(locale);diagram.update({locale});heroArchitecture.update(locale);lab?.update();
  $('open-diagram').href=`diagrams/${document.querySelector('[data-diagram][aria-pressed="true"]').dataset.diagram}.html?lang=${locale}`;
  try{localStorage.setItem('forge:language',locale);}catch{}
 }

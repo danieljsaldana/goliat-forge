@@ -1,0 +1,1 @@
+Goliat Forge · [Home](https://github.com/danieljsaldana/goliat-forge/wiki/Home) · [Web / Website](https://danieljsaldana.github.io/goliat-forge/) · [Daniel J. Saldaña](https://danieljsaldana.dev/) · [GitHub Sponsors](https://github.com/sponsors/danieljsaldana) · [Licencia / Licence](https://github.com/danieljsaldana/goliat-forge/blob/main/LICENSING.md)

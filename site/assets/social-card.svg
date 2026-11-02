@@ -3,15 +3,29 @@
 <rect width="1200" height="630" fill="#faf8f5"/><rect x="660" width="540" height="630" fill="url(#grid)"/>
 <rect x="65" y="64" width="49" height="49" rx="12" fill="#183448"/><path d="M77 83l12-7 13 7-13 7zM77 91l12 7 13-7M77 99l12 7 13-7" fill="none" stroke="#ffb179" stroke-width="2" stroke-linejoin="round"/>
 <text x="130" y="99" font-family="Arial,sans-serif" font-size="32" fill="#1d343b">Goliat <tspan font-weight="700">Forge</tspan></text>
-<text x="65" y="186" font-family="Arial,sans-serif" font-size="14" fill="#a24622" font-weight="700" letter-spacing="3">BUILD YOUR NEXT AWS APPLICATION</text>
-<text x="62" y="266" font-family="Arial,sans-serif" font-size="62" fill="#1d343b" font-weight="700">A clear foundation.</text><text x="62" y="340" font-family="Arial,sans-serif" font-size="62" fill="#b65028" font-weight="700">Room to build.</text>
-<text x="65" y="401" font-family="Arial,sans-serif" font-size="22" fill="#5c6d70">Next.js. Node.js. Your choice of private data.</text><text x="65" y="437" font-family="Arial,sans-serif" font-size="20" fill="#5c6d70">Modular Terraform · Isolated Dev &amp; Prod · Optional SQS</text>
-<rect x="65" y="502" width="180" height="43" rx="9" fill="#1d343b"/><text x="88" y="529" font-family="Arial,sans-serif" font-size="16" fill="white">All source included</text>
-<g font-family="Arial,sans-serif"><rect x="815" y="140" width="260" height="76" rx="13" fill="#1d343b"/><text x="945" y="172" fill="#fff" text-anchor="middle" font-size="21" font-weight="700">CloudFront + WAF</text><text x="945" y="196" fill="#cbdad9" text-anchor="middle" font-size="14">One protected entry per environment</text>
-<path d="M945 216V256" stroke="#b65028" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="815" y="264" width="260" height="184" rx="13" fill="#f2f5ef" stroke="#c6d3cc"/><text x="836" y="296" fill="#557666" font-size="12" font-weight="700" letter-spacing="2">PRIVATE WORKLOADS</text>
-<rect x="837" y="314" width="216" height="48" rx="8" fill="#fff" stroke="#ccd9d2"/><text x="945" y="345" fill="#1d343b" text-anchor="middle" font-size="18">Node.js · Fargate</text><path d="M945 362V383" stroke="#b65028" stroke-width="2" marker-end="url(#arrow)"/>
-<rect x="837" y="391" width="216" height="37" rx="8" fill="#fff" stroke="#ccd9d2"/><text x="945" y="416" fill="#1d343b" text-anchor="middle" font-size="17">SQL / Documents · IAM + TLS</text>
-<text x="815" y="484" fill="#557666" font-size="15">Shared foundation. Separate environments.</text></g>
+<text x="65" y="186" font-family="Arial,sans-serif" font-size="14" fill="#a24622" font-weight="700" letter-spacing="3">MODULAR AWS REFERENCE ARCHITECTURE</text>
+<text x="62" y="266" font-family="Arial,sans-serif" font-size="62" fill="#1d343b" font-weight="700">Architecture first.</text><text x="62" y="340" font-family="Arial,sans-serif" font-size="62" fill="#b65028" font-weight="700">Build from here.</text>
+<text x="65" y="401" font-family="Arial,sans-serif" font-size="22" fill="#5c6d70">Shared services. Isolated Dev and Prod.</text><text x="65" y="437" font-family="Arial,sans-serif" font-size="20" fill="#5c6d70">Terraform · Private workloads · Configurable data</text>
+<rect x="65" y="502" width="180" height="43" rx="9" fill="#1d343b"/><text x="88" y="529" font-family="Arial,sans-serif" font-size="16" fill="white">Terraform modules</text>
+<g font-family="Arial,sans-serif">
+<rect x="750" y="133" width="380" height="76" rx="12" fill="#16343f"/><text x="940" y="163" fill="#d3e8d6" text-anchor="middle" font-size="13" letter-spacing="2" font-weight="700">SHARED FOUNDATION</text><text x="940" y="190" fill="#f1f6ed" text-anchor="middle" font-size="16">ECR · WAF · State · Budget</text>
+<path d="M940 209V229H840V246M940 229H1040V246" fill="none" stroke="#8ba58d" stroke-width="2"/>
+<rect x="750" y="246" width="180" height="239" rx="12" fill="#eef5ef" stroke="#cad7ca"/>
+<text x="766" y="273" font-size="13" fill="#476b56" font-weight="700">DEV</text><text x="914" y="273" text-anchor="end" font-size="10" fill="#64786a">Cognito</text>
+<rect x="764" y="286" width="152" height="40" rx="6" fill="#fffaf0" stroke="#e0caa9"/><text x="840" y="311" text-anchor="middle" font-size="14" fill="#5d543d">CloudFront + S3</text>
+<path d="M840 327V340" stroke="#8ba58d" stroke-width="1.5"/>
+<rect x="762" y="340" width="156" height="130" rx="8" fill="#f9fbf6" stroke="#adc3b4" stroke-dasharray="4 3"/><text x="774" y="359" font-size="9" letter-spacing="1" fill="#577c64">PRIVATE VPC</text>
+<rect x="774" y="370" width="132" height="35" rx="6" fill="#fff" stroke="#cedcd0"/><text x="840" y="392" text-anchor="middle" font-size="13" fill="#25463e">ALB → Fargate</text>
+<path d="M840 406V418" stroke="#8ba58d" stroke-width="1.5"/>
+<rect x="774" y="423" width="132" height="32" rx="6" fill="#fff" stroke="#cedcd0"/><text x="840" y="444" text-anchor="middle" font-size="13" fill="#25463e">Private data</text>
+<rect x="950" y="246" width="180" height="239" rx="12" fill="#f9f3e9" stroke="#cad7ca"/>
+<text x="966" y="273" font-size="13" fill="#476b56" font-weight="700">PROD</text><text x="1114" y="273" text-anchor="end" font-size="10" fill="#64786a">Cognito</text>
+<rect x="964" y="286" width="152" height="40" rx="6" fill="#fffaf0" stroke="#e0caa9"/><text x="1040" y="311" text-anchor="middle" font-size="14" fill="#5d543d">CloudFront + S3</text>
+<path d="M1040 327V340" stroke="#8ba58d" stroke-width="1.5"/>
+<rect x="962" y="340" width="156" height="130" rx="8" fill="#f9fbf6" stroke="#adc3b4" stroke-dasharray="4 3"/><text x="974" y="359" font-size="9" letter-spacing="1" fill="#577c64">PRIVATE VPC</text>
+<rect x="974" y="370" width="132" height="35" rx="6" fill="#fff" stroke="#cedcd0"/><text x="1040" y="392" text-anchor="middle" font-size="13" fill="#25463e">ALB → Fargate</text>
+<path d="M1040 406V418" stroke="#8ba58d" stroke-width="1.5"/>
+<rect x="974" y="423" width="132" height="32" rx="6" fill="#fff" stroke="#cedcd0"/><text x="1040" y="444" text-anchor="middle" font-size="13" fill="#25463e">Private data</text>
+<text x="940" y="519" text-anchor="middle" font-size="15" fill="#577465">One VPC per environment.</text></g>
 <path d="M65 578H1135" stroke="#deded4"/><text x="65" y="607" font-family="Arial,sans-serif" font-size="14" fill="#657575">Daniel J. Saldaña · danieljsaldana.dev</text><text x="1135" y="607" text-anchor="end" font-family="Arial,sans-serif" font-size="12" fill="#657575">github.com/danieljsaldana/goliat-forge</text>
 </svg>

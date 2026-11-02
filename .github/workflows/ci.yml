@@ -11,6 +11,10 @@ concurrency:
   cancel-in-progress: true
 jobs:
   checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['24', '26']
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     services:
@@ -40,7 +44,7 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
-          node-version: '24'
+          node-version: ${{ matrix.node }}
           cache: npm
           cache-dependency-path: |
             package-lock.json
@@ -62,12 +66,23 @@ jobs:
       - name: Check diagram fallbacks and source previews
         run: node scripts/render_diagrams.mjs --check
       - name: Check public source
-        run: python3 scripts/check_publication.py
+        run: |
+          python3 scripts/check_publication.py
+          python3 scripts/check_wiki.py
       - name: Audit both dependency trees
         run: |
           npm audit --audit-level=moderate
           npm audit --prefix apps/web --audit-level=moderate
       - run: make test
+      - name: Test the production API image on Node 26 Alpine
+        if: matrix.node == '26'
+        run: |
+          docker build --pull --tag forge-api-ci --file apps/api/Dockerfile .
+          docker run --rm --network none \
+            --mount type=bind,source="$PWD/tests",target=/app/tests,readonly \
+            --mount type=bind,source="$PWD/apps/worker",target=/app/apps/worker,readonly \
+            --mount type=bind,source="$PWD/apps/identity",target=/app/apps/identity,readonly \
+            forge-api-ci node --test tests/application.test.mjs tests/database-options.test.mjs
       - name: Start disposable authenticated MongoDB
         env:
           TEST_MONGODB_URL: mongodb://forge:local-integration-test@127.0.0.1:27017/forge_integration_test?authSource=admin&replicaSet=rs0&directConnection=true

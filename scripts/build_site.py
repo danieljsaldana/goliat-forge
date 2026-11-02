@@ -142,6 +142,7 @@ def build():
         hashes[name]=hashlib.sha256(text.encode()).hexdigest()[:12];active.remove(name);return hashes[name]
     for name in ['app.js','standalone.js']:module(name)
     stylesheet_hash=hashlib.sha256((SITE/'styles.css').read_bytes()).hexdigest()[:12]
+    social_image_hash=hashlib.sha256((OUT/'assets/social-card.png').read_bytes()).hexdigest()[:12]
     html=(SITE/'index.html').read_text().replace('href="styles.css"',f'href="styles.css?v={stylesheet_hash}"').replace('src="app.js"',f'src="app.js?v={hashes["app.js"]}"')
     if original_repository and product.get('repository')!=original_repository:html=html.replace(original_repository,product['repository'])
     html=re.sub(r'(<span[^>]*data-version[^>]*>).*?(</span>)',lambda m:m[1]+'v'+product['version']+m[2],html)
@@ -150,9 +151,9 @@ def build():
         html=re.sub(r'(<span data-github-count>).*?(</span>)',lambda match:match[1]+str(snapshot['count'])+match[2],html)
     for language in ['es','en']:
         page=translate_html(html,language)
-        title='Goliat Forge · A clear foundation for AWS applications' if language=='en' else 'Goliat Forge · Una base clara para construir en AWS'
+        title='Goliat Forge · Modular AWS architecture' if language=='en' else 'Goliat Forge · Arquitectura modular para AWS'
         page=re.sub(r'<title>.*?</title>','<title>'+title+'</title>',page)
-        description=('Next.js, a private Node.js API and your choice of RDS PostgreSQL, Aurora or DocumentDB. Modular Terraform with isolated Dev and Prod.' if language=='en' else 'Next.js, una API Node.js privada y datos RDS PostgreSQL, Aurora o DocumentDB. Terraform modular con Dev y Prod aislados.')
+        description=('A modular AWS reference architecture with Terraform, shared platform services, isolated Dev and Prod, private workloads and configurable data engines.' if language=='en' else 'Arquitectura AWS modular con Terraform, plataforma compartida, Dev y Prod aislados, cargas privadas y motores de datos configurables.')
         def meta(key,value):
             nonlocal page
             pattern=r'(<meta (?:name|property)="'+re.escape(key)+r'" content=")[^"]*(")'
@@ -161,19 +162,23 @@ def build():
         for key in ['description','og:description','twitter:description']:meta(key,description)
         meta('og:locale','en_US' if language=='en' else 'es_ES')
         meta('og:locale:alternate','es_ES' if language=='en' else 'en_US')
-        image_alt='Goliat Forge: Next.js, Node.js and private AWS application infrastructure' if language=='en' else 'Goliat Forge: Next.js, Node.js y una arquitectura AWS con aplicaciones y datos privados'
+        image_alt='Goliat Forge: shared AWS foundation and isolated Dev and Prod architectures' if language=='en' else 'Goliat Forge: plataforma AWS compartida y arquitecturas Dev y Prod aisladas'
         for key in ['og:image:alt','twitter:image:alt']:meta(key,image_alt)
         if product['site_url']:
             canonical=product['site_url'].rstrip('/')+('/en/' if language=='en' else '/')
             page=re.sub(r'<link rel="canonical"[^>]*>','',page)
             page=page.replace('</head>','<link rel="canonical" href="'+escape(canonical,quote=True)+'"></head>')
             meta('og:url',canonical)
-            for key in ['og:image','twitter:image']:meta(key,product['site_url'].rstrip('/')+'/assets/social-card.png')
+            share_image=product['site_url'].rstrip('/')+'/assets/social-card.png?v='+social_image_hash
+            for key in ['og:image','og:image:secure_url','twitter:image']:meta(key,share_image)
         output=OUT/('en' if language=='en' else '')
         output.mkdir(exist_ok=True);(output/'index.html').write_text(page)
     shutil.copyfile(OUT/'index.html',OUT/'index.htm')
     (OUT/'site').mkdir(exist_ok=True)
-    for suffix in ['html','htm']:(OUT/f'site/index.{suffix}').write_text('<!doctype html><html lang="es"><head><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=../"></head><body><a href="../">Goliat Forge</a></body></html>')
+    # Legacy entry URLs also expose previews to crawlers that do not follow meta refresh.
+    home_head=re.search(r'<head>([\s\S]*?)</head>',(OUT/'index.html').read_text()).group(1)
+    preview_head='\n'.join(re.findall(r'<meta\b[^>]*>|<title>[\s\S]*?</title>|<link rel="(?:canonical|author)"[^>]*>',home_head))
+    for suffix in ['html','htm']:(OUT/f'site/index.{suffix}').write_text('<!doctype html><html lang="es"><head>'+preview_head+'\n<meta http-equiv="refresh" content="0;url=../"></head><body><a href="../">Goliat Forge</a></body></html>')
     (OUT/'doc.js').write_text("const u=new URL(location.href);if(u.searchParams.get('lang')==='en'&&u.pathname.includes('/docs/')&&!u.pathname.includes('/modules/')&&!u.pathname.endsWith('.en.html')){u.pathname=u.pathname.replace(/\\.html$/,'.en.html');u.searchParams.delete('lang');location.replace(u);}")
     sources=[*ROOT.glob('README*.md'),*ROOT.glob('CONTRIBUTING*.md'),ROOT/'SECURITY.md',ROOT/'CODE_OF_CONDUCT.md',ROOT/'LICENSING.md',ROOT/'examples/demo/README.md',ROOT/'examples/databases/README.md',*sorted((ROOT/'docs').glob('*.md'))]
     for source in sources:
