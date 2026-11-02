@@ -72,7 +72,11 @@ jobs:
           chmod 400 .forge/ci/mongodb-keyfile
           sudo chown 999:999 .forge/ci/mongodb-keyfile
           docker run -d --name forge-mongodb -p 127.0.0.1:27017:27017 --mount type=bind,source="$PWD/.forge/ci/mongodb-keyfile",target=/run/mongodb-keyfile,readonly -e MONGO_INITDB_ROOT_USERNAME=forge -e MONGO_INITDB_ROOT_PASSWORD=local-integration-test mongo:8.0 --replSet rs0 --bind_ip_all --keyFile /run/mongodb-keyfile
-          node scripts/prepare_test_mongodb.mjs
+          if ! node scripts/prepare_test_mongodb.mjs; then
+            docker inspect forge-mongodb --format '{{json .State}}'
+            docker logs --tail 60 forge-mongodb
+            exit 1
+          fi
       - name: PostgreSQL, MySQL and MongoDB data contracts
         env:
           TEST_DATABASE_URL: postgresql://forge:local-integration-test@127.0.0.1:5432/forge_integration_test
